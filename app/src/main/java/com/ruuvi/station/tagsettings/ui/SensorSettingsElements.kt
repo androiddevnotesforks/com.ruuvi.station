@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -34,6 +33,7 @@ import com.ruuvi.station.alarm.ui.AlarmsGroup
 import com.ruuvi.station.alarm.ui.AlarmItemsViewModel
 import com.ruuvi.station.app.ui.UiText
 import com.ruuvi.station.app.ui.components.*
+import com.ruuvi.station.app.ui.components.dialog.CustomContentDialog
 import com.ruuvi.station.app.ui.theme.RuuviStationTheme
 import com.ruuvi.station.calibration.ui.CalibrationSettingsGroup
 import com.ruuvi.station.dfu.ui.FirmwareGroup
@@ -45,7 +45,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import okhttp3.internal.toHexString
 import timber.log.Timber
-import java.util.Locale
 
 @Composable
 fun SensorSettings(
@@ -62,7 +61,6 @@ fun SensorSettings(
     val sensorOwnedOrOffline by viewModel.sensorOwnedOrOffline.collectAsState(initial = false)
     val isLowBattery by viewModel.isLowBattery.collectAsState(initial = false)
     val firmware by viewModel.firmware.collectAsState(initial = null)
-    val visibleMeasurementsEnabled by viewModel.visibleMeasurementsEnabled.collectAsState()
     var showAskToClaimDialog by remember {
         mutableStateOf(false)
     }
@@ -80,8 +78,10 @@ fun SensorSettings(
             sensorIsShared = sensorIsShared,
             setName = viewModel::setName
         )
-        if (visibleMeasurementsEnabled) {
+
+        if (sensorOwnedOrOffline) {
             DividerRuuvi()
+
             TextEditWithCaptionButton(
                 title = stringResource(R.string.visible_measurements),
                 value = viewModel.getVisibleMeasurementsCount().asString(context),
@@ -122,7 +122,7 @@ fun SensorSettings(
     }
 
     if (showAskToClaimDialog) {
-        RuuviDialog(
+        CustomContentDialog(
             title = stringResource(id = R.string.claim_sensor_ownership),
             onDismissRequest = { showAskToClaimDialog = false },
             positiveButtonText = stringResource(id = R.string.yes),
@@ -139,7 +139,7 @@ fun SensorSettings(
     LaunchedEffect(key1 = Unit) {
         viewModel.updateSensorFirmwareVersion()
     }
-    
+
     LaunchedEffect(key1 = Unit) {
         viewModel.askToClaim.collectLatest {
             Timber.d("askToClaim collected $it")
@@ -286,7 +286,7 @@ fun SetSensorName(
     var name by remember {
         mutableStateOf(TextFieldValue(value ?: "", TextRange((value ?: "").length)))
     }
-    RuuviDialog(
+    CustomContentDialog(
         title = stringResource(id = R.string.tag_name),
         onDismissRequest = onDismissRequest,
         onOkClickAction = {
