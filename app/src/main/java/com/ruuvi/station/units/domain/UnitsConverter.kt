@@ -15,9 +15,15 @@ class UnitsConverter (
         private val preferences: PreferencesRepository
 ) {
     fun getTitleForUnitType(unitType: UnitType): String {
-        val measurementTitle = context.getString(unitType.measurementTitle)
-        val unitTitle = context.getString(unitType.unitTitle)
-        return "$measurementTitle: $unitTitle"
+        val unit = if (unitType is UnitType.HumidityUnit.DewPoint) {
+            context.getString(getTemperatureUnit().unit)
+        } else {
+            context.getString(unitType.unit)
+        }
+
+        val unitString = if (unit.isNotEmpty()) " ($unit)" else ""
+        val name = context.getString(unitType.measurementName)
+        return name + unitString
     }
 
     // AQI
@@ -490,6 +496,19 @@ class UnitsConverter (
             valueWithoutUnit = context.getString(Accuracy.Accuracy1.nameTemplateId, dba, "").trim(),
             unitString = context.getString(unitType.unit),
             unitType = unitType
+        )
+
+    fun getMsnValue(
+        value: Int
+    ): EnvironmentValue =
+        EnvironmentValue (
+            original = value.toDouble(),
+            value = value.toDouble(),
+            accuracy = Accuracy.Accuracy0,
+            valueWithUnit =context.getString(Accuracy.Accuracy0.nameTemplateId, value.toDouble(), "").trim(),
+            valueWithoutUnit = context.getString(Accuracy.Accuracy0.nameTemplateId, value.toDouble(), "").trim(),
+            unitString = "",
+            unitType = MsnUnit.MsnCount
         )
 
     companion object {

@@ -17,7 +17,6 @@ sealed class UnitType(
 
     fun getCode(): String = "${measurementCode}_$unitCode"
 
-
     sealed class TemperatureUnit(
         code: String,
         unitTitle: Int,
@@ -249,7 +248,7 @@ sealed class UnitType(
         data object GForceX: Acceleration(
             code = ACCELERATION_UNIT_GX,
             title = R.string.acceleration_x,
-            unit = R.string.acceleration_unit_x,
+            unit = R.string.acceleration_unit,
             measurementCode = ACCELERATION_MEASUREMENT_CODE,
             measurementTitle = R.string.acceleration_x,
             measurementName = R.string.acc_x,
@@ -258,7 +257,7 @@ sealed class UnitType(
         data object GForceY: Acceleration(
             code = ACCELERATION_UNIT_GY,
             title = R.string.acceleration_y,
-            unit = R.string.acceleration_unit_y,
+            unit = R.string.acceleration_unit,
             measurementCode = ACCELERATION_MEASUREMENT_CODE,
             measurementTitle = R.string.acceleration_y,
             measurementName = R.string.acc_y,
@@ -267,7 +266,7 @@ sealed class UnitType(
         data object GForceZ: Acceleration(
             code = ACCELERATION_UNIT_GZ,
             title = R.string.acceleration_z,
-            unit = R.string.acceleration_unit_z,
+            unit = R.string.acceleration_unit,
             measurementCode = ACCELERATION_MEASUREMENT_CODE,
             measurementTitle = R.string.acceleration_z,
             measurementName = R.string.acc_z,
@@ -577,6 +576,28 @@ sealed class UnitType(
         }
     }
 
+    sealed class MsnUnit(): UnitType(
+        unitCode = MSN_COUNT,
+        unitTitle = R.string.empty,
+        unit = R.string.empty,
+        measurementCode = MSN_CODE,
+        measurementTitle = R.string.measurement_sequence_number,
+        measurementName = R.string.meas_seq_number,
+        iconRes = R.drawable.icon_msn,
+        defaultAccuracy = Accuracy.Accuracy0
+    ) {
+        data object MsnCount: MsnUnit()
+
+        companion object {
+            fun getByCode(code: String): UnitType {
+                return when (code) {
+                    MSN_COUNT -> MsnCount
+                    else -> MsnCount
+                }
+            }
+        }
+    }
+
     companion object {
         const val TEMPERATURE_MEASUREMENT_CODE = "TEMPERATURE"
         const val TEMPERATURE_CELSIUS_CODE = "C"
@@ -633,6 +654,9 @@ sealed class UnitType(
         const val PM100_MEASUREMENT_CODE = "PM100"
         const val PM_UNIT_MGM3 = "MGM3"
 
+        const val MSN_CODE = "MSN"
+        const val MSN_COUNT = "COUNT"
+
         fun getByCode(code: String): UnitType? {
             val codeParts = code.split("_")
             if (codeParts.size != 2) return null
@@ -654,6 +678,7 @@ sealed class UnitType(
                 VOC_MEASUREMENT_CODE -> VOC.getByCode(unitType)
                 NOX_MEASUREMENT_CODE -> NOX.getByCode(unitType)
                 PM10_MEASUREMENT_CODE, PM25_MEASUREMENT_CODE, PM40_MEASUREMENT_CODE, PM100_MEASUREMENT_CODE -> PM.getByType(measurementType)
+                MSN_CODE -> MsnUnit.getByCode(unitType)
                 else -> null
             }
         }
@@ -694,5 +719,6 @@ fun UnitType.getDescriptionBodyResId(): Int {
         is UnitType.PM.PM25 -> R.string.description_text_pm
         is UnitType.PM.PM40 -> R.string.description_text_pm
         is UnitType.PM.PM100 -> R.string.description_text_pm
+        UnitType.MsnUnit.MsnCount -> R.string.description_text_measurement_sequence_number
     }
 }
