@@ -604,7 +604,7 @@
     <string name="visible_measurements_change_use_default_confirmation">У вас настроено активное оповещение для %1$s. Если вы измените этот параметр, оно будет отключено. Продолжить?</string>
     <string name="visible_measurements_change_use_default_multiple_alerts_confirmation">У вас настроены активные оповещения для %1$s. Если вы измените этот параметр, они будут отключены. Продолжить?</string>
     <string name="visible_measurements_description">Здесь вы можете выбрать, какие измерения отображать и в каком порядке. Отключите переключатель «Использовать по умолчанию», чтобы настроить параметры.</string>
-    <string name="visible_measurements_last_element_message">Нельзя удалить последнее видимое измерение. Должно оставаться как минимум одно измерение.</string>
+    <string name="visible_measurements_last_element_message">Невозможно удалить последнюю видимую величину. Оставьте как минимум одно измерение в списке видимых измерений.</string>
     <string name="visible_measurements_use_default">Использовать по умолчанию</string>
     <string name="voc_index">Индекс ЛОС</string>
     <string name="voc_with_unit">Индекс ЛОС (%1$s)</string>

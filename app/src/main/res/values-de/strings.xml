@@ -804,7 +804,7 @@ Wenn die Beanspruchung nicht erfolgreich war oder NFC auf Ihrem Gerät nicht ver
     <string name="visible_measurements_change_use_default_confirmation">Sie haben eine aktive Benachrichtigung für %1$s konfiguriert. Wenn Sie diese Einstellung ändern, wird sie deaktiviert. Möchten Sie fortfahren?</string>
     <string name="visible_measurements_change_use_default_multiple_alerts_confirmation">Sie haben aktive Benachrichtigungen für %1$s konfiguriert. Wenn Sie diese Einstellung ändern, werden sie deaktiviert. Möchten Sie fortfahren?</string>
     <string name="visible_measurements_description">Hier kannst du auswählen, welche Messwerte du sehen möchtest und in welcher Reihenfolge. Deaktiviere den Schalter „Standard verwenden“, um die Einstellungen anzupassen.</string>
-    <string name="visible_measurements_last_element_message">Die letzte sichtbare Messung kann nicht gelöscht werden. Mindestens eine Messung muss verbleiben.</string>
+    <string name="visible_measurements_last_element_message">Die letzte sichtbare Messung kann nicht entfernt werden. Lassen Sie mindestens eine Messung in der Liste der sichtbaren Messungen.</string>
     <string name="visible_measurements_use_default">Standard verwenden</string>
     <string name="voc_index">VOC-Index</string>
     <string name="voc_with_unit">VOC-Index (%1$s)</string>

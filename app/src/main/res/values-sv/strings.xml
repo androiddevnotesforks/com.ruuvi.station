@@ -793,7 +793,7 @@
     <string name="visible_measurements_change_use_default_confirmation">Du har en aktiv avisering konfigurerad för %1$s. Om du ändrar den här inställningen inaktiveras den. Vill du fortsätta?</string>
     <string name="visible_measurements_change_use_default_multiple_alerts_confirmation">Du har aktiva aviseringar konfigurerade för %1$s. Om du ändrar den här inställningen inaktiveras de. Vill du fortsätta?</string>
     <string name="visible_measurements_description">Här kan du välja vilka mätvärden du vill se och i vilken ordning. Stäng av "Använd standard" för att anpassa inställningarna.</string>
-    <string name="visible_measurements_last_element_message">Det går inte att ta bort den sista synliga mätningen. Minst en mätning måste finnas kvar.</string>
+    <string name="visible_measurements_last_element_message">Den sista synliga mätningen kan inte tas bort. Lämna minst en mätning i listan över synliga mätningar.</string>
     <string name="visible_measurements_use_default">Använd standard</string>
     <string name="voc_index">VOC-index</string>
     <string name="voc_with_unit">VOC-index (%1$s)</string>
