@@ -43,7 +43,10 @@ class FirmwareRepository {
                             it.url,
                             it.created_at,
                             it.versionCode,
-                            it.fileName
+                            it.fileName,
+                            it.fwloader,
+                            it.mcuboot_s1,
+                            it.mcuboot
                         ))
                 }
 
@@ -55,7 +58,10 @@ class FirmwareRepository {
                                 it.url,
                                 it.created_at,
                                 it.versionCode,
-                                it.fileName
+                                it.fileName,
+                                it.fwloader,
+                                it.mcuboot_s1,
+                                it.mcuboot
                             ))
                     }
                 }
@@ -68,7 +74,10 @@ class FirmwareRepository {
                                 it.url,
                                 it.created_at,
                                 it.versionCode,
-                                it.fileName
+                                it.fileName,
+                                it.fwloader,
+                                it.mcuboot_s1,
+                                it.mcuboot
                             )
                         )
                     }

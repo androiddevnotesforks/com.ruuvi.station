@@ -245,10 +245,16 @@ fun UploadFirmwareScreen(
     uploadFw: () -> Flow<UploadFirmwareStatus>
 ) {
     var uploadPercent by remember { mutableStateOf(0) }
+    var uploadPart by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         uploadFw.invoke().collectLatest {
             if (it is UploadFirmwareStatus.Progress) {
                 uploadPercent = it.percent
+                if (it.partsCount > 1) {
+                    uploadPart = " (${it.part}/${it.partsCount})"
+                } else {
+                    uploadPart = ""
+                }
             } else if (it is UploadFirmwareStatus.Finished) {
                 uploadPercent = 100
                 navController.navigate(UpdateAirSuccess)
@@ -264,7 +270,7 @@ fun UploadFirmwareScreen(
             .padding(RuuviStationTheme.dimensions.screenPadding)
             .fillMaxWidth()
     ) {
-        SubtitleWithPadding(text = stringResource(id = R.string.updating))
+        SubtitleWithPadding(text = stringResource(id = R.string.updating) + uploadPart)
         Progress(progress = (uploadPercent.toFloat() ?: 0f) / 100f)
 
         ParagraphWithPadding(text = "$uploadPercent %")
