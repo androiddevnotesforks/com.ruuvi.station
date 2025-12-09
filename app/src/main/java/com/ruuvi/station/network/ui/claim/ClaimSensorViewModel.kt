@@ -6,6 +6,7 @@ import com.ruuvi.station.R
 import com.ruuvi.station.app.ui.UiEvent
 import com.ruuvi.station.app.ui.UiText
 import com.ruuvi.station.bluetooth.domain.SensorInfoInteractor
+import com.ruuvi.station.database.tables.isAir
 import com.ruuvi.station.network.domain.RuuviNetworkInteractor
 import com.ruuvi.station.network.domain.SensorClaimInteractor
 import com.ruuvi.station.nfc.NfcScanReciever
@@ -25,6 +26,8 @@ class ClaimSensorViewModel (
 
     private val _uiEvent = MutableSharedFlow<UiEvent> (1)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent
+
+    val isAir = interactor.getTagById(sensorId)?.isAir()
 
     fun checkClaimState() {
         Timber.d("checkClaimState")
@@ -156,7 +159,7 @@ class ClaimSensorViewModel (
                 if (!this.isActive) break
                 val sensorInfo = sensorInfoInteractor.getSensorFirmwareVersion(sensorId)
                 Timber.d("SensorInfo $sensorInfo")
-                if (sensorInfo.id == null) {
+                if (sensorInfo.id == null || sensorInfo.id == "XX:XX:XX:XX:XX:XX:XX:XX") {
                     delay(3000)
                 } else {
                     id = sensorInfo.id

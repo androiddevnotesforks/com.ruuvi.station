@@ -369,6 +369,7 @@
     <string name="firmware_very_old">Sehr alt</string>
     <string name="follow_system_theme">Systemthema</string>
     <string name="force_claim">Kraft-Anspruch</string>
+    <string name="force_claim_air_description2">Die erzwungene Zuordnung erfolgt über Near-Field Communication (NFC). Stelle sicher, dass NFC auf deinem Mobilgerät aktiviert ist.\n\n\t1. Berühre dein Ruuvi Air mit deinem Mobilgerät, um den Zuordnungsprozess zu starten.\n\n\t2. Wenn die Zuordnung erfolgreich war, wirst du zurück zu den Sensoreinstellungen geleitet.\n\nWenn die Zuordnung nicht erfolgreich war oder NFC auf deinem Gerät nicht verfügbar ist:\n\n\t1. Halte das Ruuvi Air kopfüber.\n\n\t2. Suche das kleine Loch, das mit einem Pfeil gekennzeichnet ist, und drücke kurz mit einer Büroklammer auf die darin befindliche Taste, um den Zuordnungsprozess zu starten.\n\n\t3. Wenn die Zuordnung erfolgreich war, wirst du zurück zu den Sensoreinstellungen geleitet.</string>
     <string name="force_claim_sensor">Antragstellung in Bearbeitung</string>
     <string name="force_claim_sensor_description1">Dieser Sensor wurde von einem anderen Benutzer beansprucht. Sie können die Eigentümerschaft für Ihr Konto erzwingen, wenn Sie physischen Zugang zu diesem Sensor haben. Jeder Ruuvi-Sensor kann nur einen Besitzer haben.</string>
     <string name="force_claim_sensor_description2">Die Zwangsanforderung erfolgt über die Nahfeldkommunikation (NFC). Vergewissern Sie sich, dass NFC auf Ihrem Mobilgerät aktiviert ist.\

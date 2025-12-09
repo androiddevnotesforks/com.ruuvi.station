@@ -250,6 +250,7 @@
     <string name="firmware">Firmware</string>
     <string name="firmware_update">Aktualizuj Firmware</string>
     <string name="follow_system_theme">Temat systemu</string>
+    <string name="force_claim_air_description2">Wymuszone przypisanie odbywa się z użyciem komunikacji bliskiego zasięgu (NFC). Upewnij się, że NFC jest włączone w Twoim urządzeniu mobilnym.\n\n\t1. Dotknij urządzeniem mobilnym swojego Ruuvi Air, aby rozpocząć proces przypisania.\n\n\t2. Po pomyślnym przypisaniu zostaniesz przeniesiony z powrotem do ustawień czujnika.\n\nJeśli przypisanie się nie powiodło lub NFC nie jest dostępne w Twoim urządzeniu:\n\n\t1. Trzymaj Ruuvi Air do góry nogami.\n\n\t2. Znajdź mały otwór oznaczony strzałką i krótko naciśnij znajdujący się w środku przycisk, używając spinacza, aby rozpocząć proces przypisania.\n\n\t3. Po pomyślnym przypisaniu zostaniesz przeniesiony z powrotem do ustawień czujnika.</string>
     <string name="gallery">Galeria</string>
     <string name="gateway_test_exception">To nie pomogło. Czy adres URL jest poprawny?</string>
     <string name="gateway_test_fail">To nie pomogło. Kod odpowiedzi: %1$d</string>
