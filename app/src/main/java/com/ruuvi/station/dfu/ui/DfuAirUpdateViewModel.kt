@@ -12,10 +12,13 @@ import com.ruuvi.station.dfu.data.DownloadFileStatus
 import com.ruuvi.station.dfu.data.UploadFirmwareStatus
 import com.ruuvi.station.dfu.domain.FirmwareRepository
 import com.ruuvi.station.dfu.domain.downloadToFileWithProgress
+import com.ruuvi.station.util.isEqualVersion
+import com.ruuvi.station.util.isNewerVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +36,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import net.swiftzer.semver.SemVer
 import timber.log.Timber
 import java.io.File
@@ -112,17 +116,12 @@ class DfuAirUpdateViewModel(
             } else {
                 if (selectedOption != null && sensorVersion != null) {
                     if (sensorVersion.isSuccess) {
-                        val sensorFwFirstNumberIndex = sensorVersion.fw.indexOfFirst { it.isDigit() }
-                        val sensorFwParsed = SemVer.parse(
-                            sensorVersion.fw.subSequence(sensorFwFirstNumberIndex, sensorVersion.fw.length).toString())
-                        val latestFwFirstNumberIndex = selectedOption.version.indexOfFirst { it.isDigit() }
-                        val latestFwParsed = SemVer.parse(
-                            selectedOption.version.subSequence(latestFwFirstNumberIndex, selectedOption.version.length).toString()
-                        )
-                        if (sensorFwParsed.compareTo(latestFwParsed) < 0) {
+                        val currentFw = sensorVersion.fw
+                        val latestFw = selectedOption.version
+
+                        if (isNewerVersion(latestFw, currentFw)) {
                             return@combine true
                         } else {
-                            //goto updated
                             _uiEvent.emit(UiEvent.NavigateNew(AlreadyUpdated, true))
                             return@combine false
                         }
@@ -170,6 +169,38 @@ class DfuAirUpdateViewModel(
             }
         }
     }
+
+    fun waitForAirReboot(): Flow<WaitForAirRebootStatus> = flow {
+        emit(WaitForAirRebootStatus.Waiting)
+        val finished = withTimeoutOrNull(120_000) {
+            var fw: String? = null
+
+            while (fw == null) {
+                val firmware = sensorInfoInteractor.getSensorFirmwareVersion(sensorId)
+                Timber.d("waitForAirReboot $firmware")
+
+                if (firmware.isSuccess) {
+                    fw = firmware.fw
+                    sensorSettingsRepository.setSensorFirmware(sensorId, fw)
+
+                    if (isEqualVersion(selectedOption.value?.version.orEmpty(), fw)) {
+                        emit(WaitForAirRebootStatus.Success)
+                    } else {
+                        emit(WaitForAirRebootStatus.VersionMismatch)
+                    }
+
+                    return@withTimeoutOrNull true
+                } else {
+                    delay(3_000)
+                }
+            }
+            false
+        }
+
+        if (finished == null) {
+            emit(WaitForAirRebootStatus.Timeout)
+        }
+    }.flowOn(Dispatchers.IO)
 
     fun getServerFirmwares() {
         viewModelScope.launch {
@@ -322,4 +353,11 @@ sealed class FirmwareVersionOption (
         fileName3: String,
         fileName4: String
     ): FirmwareVersionOption("Beta", version, url, created_at, versionCode, fileName, fileName2, fileName3, fileName4)
+}
+
+sealed interface WaitForAirRebootStatus{
+    object Waiting: WaitForAirRebootStatus
+    object Success: WaitForAirRebootStatus
+    object VersionMismatch: WaitForAirRebootStatus
+    object Timeout: WaitForAirRebootStatus
 }

@@ -26,6 +26,9 @@ object UpdateAirUploadFirmware: DfuRoute
 object UpdateAirSuccess: DfuRoute
 
 @Serializable
+object WaitingForAirReboot: DfuRoute
+
+@Serializable
 object AlreadyUpdated: DfuRoute
 
 @Serializable
