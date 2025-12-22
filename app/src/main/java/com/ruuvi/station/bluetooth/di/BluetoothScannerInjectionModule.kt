@@ -10,6 +10,7 @@ import com.ruuvi.station.bluetooth.BluetoothLibrary
 import com.ruuvi.station.bluetooth.DefaultOnTagFoundListener
 import com.ruuvi.station.bluetooth.contract.IRuuviTagScanner
 import com.ruuvi.station.bluetooth.domain.*
+import com.ruuvi.station.bluetooth.domain.air.AirLedBrightnessController
 import com.ruuvi.station.bluetooth.util.ScannerSettings
 import com.ruuvi.station.startup.ui.StartupActivity
 import com.ruuvi.station.util.BackgroundScanModes
@@ -88,5 +89,7 @@ object BluetoothScannerInjectionModule {
         bind<BluetoothDevicesInteractor>() with singleton { BluetoothDevicesInteractor(instance()) }
 
         bind<DfuInteractor>() with singleton { DfuInteractor(instance()) }
+
+        bind<AirLedBrightnessController>() with singleton { AirLedBrightnessController(instance()) }
     }
 }
