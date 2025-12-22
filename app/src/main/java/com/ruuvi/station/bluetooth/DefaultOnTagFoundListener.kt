@@ -48,6 +48,7 @@ class DefaultOnTagFoundListener(
         }
         (ioScope + coroutineExceptionHandler).launch {
             ruuviTag.id?.let { sensorId ->
+                if (shouldDropAdvertisement(ruuviTag)) return@launch
                 val dbTag = repository.getTagById(sensorId)
                 if (dbTag != null) {
                     dbTag.preserveData(ruuviTag)
@@ -114,6 +115,10 @@ class DefaultOnTagFoundListener(
             preferencesRepository.isCloudModeEnabled() &&
             sensorSettings?.networkSensor == true &&
             sensorSettings.networkLastSync != null
+    }
+
+    private fun shouldDropAdvertisement(ruuviTag: RuuviTagEntity): Boolean {
+        return ruuviTag.rssi > 0
     }
 
     companion object {

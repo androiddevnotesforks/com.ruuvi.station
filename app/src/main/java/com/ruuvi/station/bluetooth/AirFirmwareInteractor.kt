@@ -67,6 +67,7 @@ class AirFirmwareInteractor (
 
     fun upload(
         file: File,
+        resetOnDone: Boolean,
         progress: (Int, Int) -> Unit,
         done: () -> Unit,
         fail: (String) -> Unit
@@ -99,7 +100,7 @@ class AirFirmwareInteractor (
 
                     override fun onUploadCompleted() {
                         Timber.d("AirFirmwareInteractor onUploadCompleted")
-                        reset()
+                        if (resetOnDone) reset()
                         done()
                     }
                 })

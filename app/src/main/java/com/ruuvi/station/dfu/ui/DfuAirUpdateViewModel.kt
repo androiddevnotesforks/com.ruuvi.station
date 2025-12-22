@@ -12,17 +12,19 @@ import com.ruuvi.station.dfu.data.DownloadFileStatus
 import com.ruuvi.station.dfu.data.UploadFirmwareStatus
 import com.ruuvi.station.dfu.domain.FirmwareRepository
 import com.ruuvi.station.dfu.domain.downloadToFileWithProgress
+import com.ruuvi.station.util.isEqualVersion
+import com.ruuvi.station.util.isNewerVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
@@ -34,6 +36,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import net.swiftzer.semver.SemVer
 import timber.log.Timber
 import java.io.File
@@ -47,7 +50,7 @@ class DfuAirUpdateViewModel(
     private val sensorSettingsRepository: SensorSettingsRepository,
 ): ViewModel() {
 
-    var fwFile: File? = null
+    var fwFiles: MutableList<File> = mutableListOf()
 
     private val _uiEvent = MutableSharedFlow<UiEvent> (1)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent
@@ -110,21 +113,15 @@ class DfuAirUpdateViewModel(
                         return@combine false
                     }
                 }
-
             } else {
                 if (selectedOption != null && sensorVersion != null) {
                     if (sensorVersion.isSuccess) {
-                        val sensorFwFirstNumberIndex = sensorVersion.fw.indexOfFirst { it.isDigit() }
-                        val sensorFwParsed = SemVer.parse(
-                            sensorVersion.fw.subSequence(sensorFwFirstNumberIndex, sensorVersion.fw.length).toString())
-                        val latestFwFirstNumberIndex = selectedOption.version.indexOfFirst { it.isDigit() }
-                        val latestFwParsed = SemVer.parse(
-                            selectedOption.version.subSequence(latestFwFirstNumberIndex, selectedOption.version.length).toString()
-                        )
-                        if (sensorFwParsed.compareTo(latestFwParsed) < 0) {
+                        val currentFw = sensorVersion.fw
+                        val latestFw = selectedOption.version
+
+                        if (isNewerVersion(latestFw, currentFw)) {
                             return@combine true
                         } else {
-                            //goto updated
                             _uiEvent.emit(UiEvent.NavigateNew(AlreadyUpdated, true))
                             return@combine false
                         }
@@ -173,6 +170,38 @@ class DfuAirUpdateViewModel(
         }
     }
 
+    fun waitForAirReboot(): Flow<WaitForAirRebootStatus> = flow {
+        emit(WaitForAirRebootStatus.Waiting)
+        val finished = withTimeoutOrNull(120_000) {
+            var fw: String? = null
+
+            while (fw == null) {
+                val firmware = sensorInfoInteractor.getSensorFirmwareVersion(sensorId)
+                Timber.d("waitForAirReboot $firmware")
+
+                if (firmware.isSuccess) {
+                    fw = firmware.fw
+                    sensorSettingsRepository.setSensorFirmware(sensorId, fw)
+
+                    if (isEqualVersion(selectedOption.value?.version.orEmpty(), fw)) {
+                        emit(WaitForAirRebootStatus.Success)
+                    } else {
+                        emit(WaitForAirRebootStatus.VersionMismatch)
+                    }
+
+                    return@withTimeoutOrNull true
+                } else {
+                    delay(3_000)
+                }
+            }
+            false
+        }
+
+        if (finished == null) {
+            emit(WaitForAirRebootStatus.Timeout)
+        }
+    }.flowOn(Dispatchers.IO)
+
     fun getServerFirmwares() {
         viewModelScope.launch {
             val options = firmwareRepository.getOptions()
@@ -191,21 +220,32 @@ class DfuAirUpdateViewModel(
     }
 
     fun startDownload(destination: File): Flow<DownloadFileStatus> = flow {
-        emit(DownloadFileStatus.Progress(0))
+        emit(DownloadFileStatus.Progress("",0))
         val fwInfo = _selectedOption.value
+        val currentFw = _sensorFwVersion.value
 
-        if (fwInfo == null) {
+
+        if (fwInfo == null || currentFw == null) {
             emit(DownloadFileStatus.Failed("Failed to retrive filename"))
             return@flow
         }
 
-        val localFile = File(destination, fwInfo.fileName)
+        val flashAll = currentFw.fw.contains(DEV_FW_INDICATOR) && !fwInfo.version.contains(DEV_FW_INDICATOR)
 
-        val fileUrl = fwInfo.url + "/" + fwInfo.fileName
+        val filesToDownLoad = if (flashAll) {
+            listOf(fwInfo.fileName, fwInfo.fileName2, fwInfo.fileName3, fwInfo.fileName4)
+        } else {
+            listOf(fwInfo.fileName)
+        }
 
-        emitAll(firmwareRepository.getFile(fileUrl).downloadToFileWithProgress(localFile.absolutePath))
-        fwFile = localFile
-        emit(DownloadFileStatus.Finished(localFile))
+        for (file in filesToDownLoad) {
+            val localFile = File(destination, file)
+            val fileUrl = fwInfo.url + "/" + file
+            emitAll(firmwareRepository.getFile(fileUrl).downloadToFileWithProgress(file, localFile.absolutePath))
+            fwFiles.add(localFile)
+        }
+
+        emit(DownloadFileStatus.Finished)
         _connectResult.value = airFirmwareInteractor.connect(sensorId)
     }
         .flowOn(Dispatchers.IO)
@@ -213,17 +253,47 @@ class DfuAirUpdateViewModel(
 
 
     fun upload(): Flow<UploadFirmwareStatus> = callbackFlow  {
-        Timber.d("fwFile $fwFile")
-        fwFile?.let {
+        if (fwFiles.isEmpty()) {
+            trySend(UploadFirmwareStatus.Finished)
+            close()
+            return@callbackFlow
+        }
+
+        fun uploadNext(index: Int) {
+            if (index >= fwFiles.size) {
+                // All files uploaded
+                trySend(UploadFirmwareStatus.Finished)
+                close()
+                return
+            }
+
+            val file = fwFiles[index]
+            Timber.d("fwFile $file")
+
             airFirmwareInteractor.upload(
-                it,
+                file,
+                resetOnDone = index == (fwFiles.size - 1),
                 progress = { current, total ->
-                    trySend(UploadFirmwareStatus.Progress((current.toDouble() / total * 100).toInt()))
+                    val percent = (current.toDouble() / total * 100).toInt()
+                    trySend(
+                        UploadFirmwareStatus.Progress(
+                            percent = percent,
+                            part = index + 1,
+                            partsCount = fwFiles.size
+                        )
+                    )
                 },
-                done = { trySend(UploadFirmwareStatus.Finished)  } ,
-                fail = { error -> trySend(UploadFirmwareStatus.Failed(error)) },
+                done = {
+                    uploadNext(index + 1)
+                },
+                fail = { error ->
+                    trySend(UploadFirmwareStatus.Failed(error))
+                    close()
+                },
             )
         }
+
+        uploadNext(0)
 
         awaitClose {}
     }.distinctUntilChanged()
@@ -232,6 +302,10 @@ class DfuAirUpdateViewModel(
         if (permissionsGranted) {
             getSensorFirmwareVersion()
         }
+    }
+
+    companion object {
+        const val DEV_FW_INDICATOR = "dev"
     }
 }
 
@@ -242,29 +316,48 @@ sealed class FirmwareVersionOption (
     val url: String,
     val created_at: String,
     val versionCode: Int,
-    val fileName: String
+    val fileName: String,
+    val fileName2: String,
+    val fileName3: String,
+    val fileName4: String
 ){
     class Latest(
         version: String,
         url: String,
         created_at: String,
         versionCode: Int,
-        fileName: String
-    ): FirmwareVersionOption("Latest", version, url, created_at, versionCode, fileName)
+        fileName: String,
+        fileName2: String,
+        fileName3: String,
+        fileName4: String
+    ): FirmwareVersionOption("Latest", version, url, created_at, versionCode, fileName, fileName2, fileName3, fileName4)
 
     class Alpha(
         version: String,
         url: String,
         created_at: String,
         versionCode: Int,
-        fileName: String
-    ): FirmwareVersionOption("Alpha", version, url, created_at, versionCode, fileName)
+        fileName: String,
+        fileName2: String,
+        fileName3: String,
+        fileName4: String
+    ): FirmwareVersionOption("Alpha", version, url, created_at, versionCode, fileName, fileName2, fileName3, fileName4)
 
     class Beta(
         version: String,
         url: String,
         created_at: String,
         versionCode: Int,
-        fileName: String
-    ): FirmwareVersionOption("Beta", version, url, created_at, versionCode, fileName)
+        fileName: String,
+        fileName2: String,
+        fileName3: String,
+        fileName4: String
+    ): FirmwareVersionOption("Beta", version, url, created_at, versionCode, fileName, fileName2, fileName3, fileName4)
+}
+
+sealed interface WaitForAirRebootStatus{
+    object Waiting: WaitForAirRebootStatus
+    object Success: WaitForAirRebootStatus
+    object VersionMismatch: WaitForAirRebootStatus
+    object Timeout: WaitForAirRebootStatus
 }

@@ -18,15 +18,15 @@ class LatestFwInteractor(
     }
 
     suspend fun downloadFw(fileUrl: String, filename: String, collectStatus: (DownloadFileStatus)->Unit) {
-        gitHubRepository.getFile(fileUrl).downloadToFileWithProgress(filename).collect {
+        gitHubRepository.getFile(fileUrl).downloadToFileWithProgress("", filename).collect {
             collectStatus(it)
         }
     }
 }
 
-    fun ResponseBody.downloadToFileWithProgress(filename: String): Flow<DownloadFileStatus> =
+    fun ResponseBody.downloadToFileWithProgress(title: String, filename: String): Flow<DownloadFileStatus> =
     flow {
-        emit(DownloadFileStatus.Progress(0))
+        emit(DownloadFileStatus.Progress(title, 0))
 
         // flag to delete file if download errors or is cancelled
         var deleteFile = true
@@ -50,7 +50,7 @@ class LatestFwInteractor(
                         outputStream.write(data, 0, bytes)
                         progressBytes += bytes
 
-                        emit(DownloadFileStatus.Progress(percent = ((progressBytes * 100) / totalBytes).toInt()))
+                        emit(DownloadFileStatus.Progress(title, percent = ((progressBytes * 100) / totalBytes).toInt()))
                     }
 
                     when {
@@ -64,7 +64,7 @@ class LatestFwInteractor(
                 }
             }
 
-            emit(DownloadFileStatus.Finished(file))
+            emit(DownloadFileStatus.Finished)
         } finally {
             // check if download was successful
 

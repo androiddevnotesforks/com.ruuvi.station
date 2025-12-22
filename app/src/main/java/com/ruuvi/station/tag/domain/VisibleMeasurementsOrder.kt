@@ -157,6 +157,7 @@ class VisibleMeasurementsOrderInteractor(
             displayOptions.add(PM.PM25)
             displayOptions.add(PM.PM40)
             displayOptions.add(PM.PM100)
+            displayOptions.add(SignalStrengthUnit.SignalDbm)
             displayOptions.add(UnitType.MsnUnit.MsnCount)
         } else {
             displayOptions.add(TemperatureUnit.Celsius)

@@ -5,7 +5,10 @@ data class FirmwareInfo(
     val url: String,
     val created_at: String,
     val versionCode: Int,
-    val fileName: String
+    val fileName: String,
+    val fwloader: String,
+    val mcuboot_s1: String,
+    val mcuboot: String
 )
 
 data class FirmwareData(

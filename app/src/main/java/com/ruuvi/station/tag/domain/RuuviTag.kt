@@ -93,7 +93,7 @@ fun SensorMeasurements.isLowBattery(): Boolean {
 }
 
 fun RuuviTag.isLowBattery(): Boolean {
-    return this.latestMeasurement?.isLowBattery() ?: false
+    return !this.isAir() && this.latestMeasurement?.isLowBattery() ?: false
 }
 
 fun RuuviTag.canUseCloudAlerts(): Boolean {
