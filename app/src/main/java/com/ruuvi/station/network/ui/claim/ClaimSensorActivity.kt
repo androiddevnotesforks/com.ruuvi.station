@@ -278,7 +278,12 @@ class ClaimSensorActivity : NfcActivity(), KodeinAware {
     fun ForceClaimGettingId() {
         PageSurfaceWithPadding() {
             Column() {
-                Paragraph(text = stringResource(id = R.string.force_claim_sensor_description2))
+                val instruction = if (viewModel.isAir == true) {
+                    stringResource(R.string.force_claim_air_description2)
+                } else {
+                    stringResource(id = R.string.force_claim_sensor_description2)
+                }
+                Paragraph(text = instruction)
             }
         }
 

@@ -11,6 +11,7 @@ import com.ruuvi.station.R
 import com.ruuvi.station.units.domain.UnitsConverter
 import com.ruuvi.station.units.model.Accuracy
 import com.ruuvi.station.units.model.UnitType
+import timber.log.Timber
 import java.text.DateFormat
 import java.util.*
 
@@ -26,8 +27,26 @@ constructor(
 
     private var tvContent: TextView = findViewById(R.id.tvContent)
 
-    override fun getOffset(): MPPointF {
-        return MPPointF((-(width / 2)).toFloat(), (-height).toFloat() -15)
+    override fun getOffsetForDrawingAtPoint(
+        posX: Float,
+        posY: Float
+    ): MPPointF? {
+        val chart = this.chartView;
+
+        var x = (-(width / 2)).toFloat()
+
+        if (posX + x < 0.0f) {
+            x = -posX
+        } else if (chart != null && posX + width + x > chart.width.toFloat()) {
+            x = chart.width.toFloat() - posX - width
+        }
+
+
+        if (posY - height < 0) {
+            return MPPointF(x,  20f)
+        } else {
+            return MPPointF(x, (-height).toFloat() - 20)
+        }
     }
 
     init {

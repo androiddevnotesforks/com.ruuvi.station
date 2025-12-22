@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -111,6 +112,7 @@ fun SensorValueItem(
                     fontSize = RuuviStationTheme.fontSizes.miniature.limitScaleTo(1.5f),
                     text = name,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -165,7 +167,8 @@ fun SensorUnitName(
             fontFamily = ruuviStationFonts.mulishBold,
             fontWeight = FontWeight.Bold,
             text = name,
-            color = Color.White
+            color = Color.White,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

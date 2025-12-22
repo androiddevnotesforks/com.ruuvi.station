@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -84,6 +85,13 @@ fun NavGraphBuilder.UpdateAir(
             UploadFirmwareScreen(
                 navController = navController,
                 uploadFw = viewModel::upload
+            )
+        }
+
+        composable<WaitingForAirReboot> {
+            WaitingForAirRebootScreen(
+                navController = navController,
+                waitForAirReboot = viewModel::waitForAirReboot
             )
         }
 
@@ -245,13 +253,19 @@ fun UploadFirmwareScreen(
     uploadFw: () -> Flow<UploadFirmwareStatus>
 ) {
     var uploadPercent by remember { mutableStateOf(0) }
+    var uploadPart by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         uploadFw.invoke().collectLatest {
             if (it is UploadFirmwareStatus.Progress) {
                 uploadPercent = it.percent
+                if (it.partsCount > 1) {
+                    uploadPart = " (${it.part}/${it.partsCount})"
+                } else {
+                    uploadPart = ""
+                }
             } else if (it is UploadFirmwareStatus.Finished) {
                 uploadPercent = 100
-                navController.navigate(UpdateAirSuccess)
+                navController.navigate(WaitingForAirReboot)
             } else if (it is UploadFirmwareStatus.Failed) {
                 navController.navigate(UpdateFailed)
             }
@@ -264,7 +278,7 @@ fun UploadFirmwareScreen(
             .padding(RuuviStationTheme.dimensions.screenPadding)
             .fillMaxWidth()
     ) {
-        SubtitleWithPadding(text = stringResource(id = R.string.updating))
+        SubtitleWithPadding(text = stringResource(id = R.string.updating) + uploadPart)
         Progress(progress = (uploadPercent.toFloat() ?: 0f) / 100f)
 
         ParagraphWithPadding(text = "$uploadPercent %")
@@ -284,5 +298,42 @@ fun UpdateSuccessScreen(
             .padding(RuuviStationTheme.dimensions.screenPadding)
     ) {
         MarkupText(R.string.update_successful_air)
+    }
+}
+
+@Composable
+fun WaitingForAirRebootScreen(
+    navController: NavHostController,
+    waitForAirReboot: () -> Flow<WaitForAirRebootStatus>
+) {
+    val activity = LocalActivity.current
+    BackHandler { activity?.finish() }
+
+    val rebootFlow = remember { waitForAirReboot() }
+    var status by remember {
+        mutableStateOf<WaitForAirRebootStatus>(WaitForAirRebootStatus.Waiting)
+    }
+
+    var message by remember { mutableIntStateOf(R.string.updating) }
+
+    LaunchedEffect(Unit) {
+        rebootFlow.collectLatest { emitted ->
+            status = emitted
+        }
+    }
+
+    Column(modifier =
+        Modifier
+            .padding(RuuviStationTheme.dimensions.screenPadding)
+    ) {
+        when (status) {
+            WaitForAirRebootStatus.Waiting -> {
+                MarkupText(R.string.update_air_reboot_waiting)
+                LoadingStatus(modifier = Modifier.padding(vertical = RuuviStationTheme.dimensions.textTopPadding))
+            }
+            WaitForAirRebootStatus.Timeout -> MarkupText(R.string.update_air_check_timeout)
+            WaitForAirRebootStatus.VersionMismatch -> MarkupText(R.string.update_air_version_mismatch)
+            WaitForAirRebootStatus.Success -> MarkupText(R.string.update_successful_air)
+        }
     }
 }
