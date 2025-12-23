@@ -15,15 +15,15 @@ class LedControlViewModel(
     val ledController: AirLedBrightnessController
 ): ViewModel() {
 
-    private val sensorSettings = sensorSettingsRepository.getSensorSettings(sensorId)
-
-    val canChangeSettings = canControlLed(sensorSettings?.firmware)
+    val canChangeSettings: Boolean
+        get() = canControlLed()
 
     private val _level = MutableStateFlow<LedBrightnessLevel?> (null)
     val level: StateFlow<LedBrightnessLevel?> = _level
 
-    private fun canControlLed(version: String?): Boolean {
-        val v = version?.trim()
+    private fun canControlLed(): Boolean {
+        val sensorSettings = sensorSettingsRepository.getSensorSettings(sensorId)
+        val version = sensorSettings?.firmware?.trim()
             ?.let { raw ->
                 val start = raw.indexOfFirst { it.isDigit() }.takeIf { it >= 0 } ?: return@let null
                 val candidate = raw.substring(start)
@@ -31,7 +31,7 @@ class LedControlViewModel(
             }
             ?: return false
 
-        return v >= MIN_VERSION
+        return version >= MIN_VERSION
     }
 
     fun selectBrightnessLevel(level: LedBrightnessLevel) {

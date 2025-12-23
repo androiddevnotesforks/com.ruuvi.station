@@ -148,10 +148,6 @@ fun SensorSettings(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.updateSensorFirmwareVersion()
-    }
-
-    LaunchedEffect(key1 = Unit) {
         viewModel.askToClaim.collectLatest {
             Timber.d("askToClaim collected $it")
             if (it) showAskToClaimDialog = true
