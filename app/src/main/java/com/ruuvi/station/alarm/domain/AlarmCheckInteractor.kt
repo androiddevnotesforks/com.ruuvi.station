@@ -193,7 +193,10 @@ class AlarmCheckInteractor(
                 AlarmType.LUMINOSITY,
                 AlarmType.VOC,
                 AlarmType.AQI,
-                AlarmType.NOX -> compareWithAlarmRange()
+                AlarmType.NOX,
+                AlarmType.DEW_POINT,
+                AlarmType.ABSOLUTE_HUMIDITY,
+                AlarmType.BATTERY_VOLTAGE-> compareWithAlarmRange()
                 AlarmType.MOVEMENT -> checkMovementData()
                 AlarmType.OFFLINE -> checkOfflineData()
             }
@@ -312,6 +315,30 @@ class AlarmCheckInteractor(
                             it,
                             R.string.alert_notification_aqi_low_threshold to
                                     R.string.alert_notification_aqi_high_threshold
+                        )
+                    }
+                AlarmType.ABSOLUTE_HUMIDITY.value ->
+                    ruuviTag.latestMeasurement?.absoluteHumidity?.let {
+                        compareValues(
+                            it,
+                            R.string.alert_notification_absolute_humidity_low_threshold to
+                                    R.string.alert_notification_absolute_humidity_high_threshold
+                        )
+                    }
+                AlarmType.DEW_POINT.value ->
+                    ruuviTag.latestMeasurement?.absoluteHumidity?.let {
+                        compareValues(
+                            it,
+                            R.string.alert_notification_dew_point_low_threshold to
+                                    R.string.alert_notification_dew_point_high_threshold
+                        )
+                    }
+                AlarmType.BATTERY_VOLTAGE.value ->
+                    ruuviTag.latestMeasurement?.absoluteHumidity?.let {
+                        compareValues(
+                            it,
+                            R.string.alert_notification_battery_voltage_low_threshold to
+                                    R.string.alert_notification_battery_voltage_high_threshold
                         )
                     }
             }

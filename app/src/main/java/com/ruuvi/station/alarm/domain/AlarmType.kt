@@ -16,7 +16,10 @@ enum class AlarmType(val value: Int, val networkCode: String?, val possibleRange
     LUMINOSITY(12, "luminosity", 0..144284, 0..144284),
     VOC(13, "voc", 0..500, 0..500),
     NOX(14, "nox", 0..500, 0..500),
-    AQI(15, "aqi", 0 .. 100, 0 .. 100);
+    AQI(15, "aqi", 0 .. 100, 0 .. 100),
+    ABSOLUTE_HUMIDITY(16, "absolute_humidity", 0 .. 650,0 .. 650),
+    DEW_POINT(17, "dew_point", -55..150, -55..150),
+    BATTERY_VOLTAGE(18, "battery_voltage", 0 .. 5, 0 .. 5);
 
 
     fun valueInRange(value: Double): Boolean = value >= extraRange.first && value <= extraRange.last

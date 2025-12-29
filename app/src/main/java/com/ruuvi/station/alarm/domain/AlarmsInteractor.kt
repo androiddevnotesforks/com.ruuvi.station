@@ -37,6 +37,11 @@ class AlarmsInteractor(
                 val last = unitsConverter.getPressureValue(type.possibleRange.last.toDouble()).toFloat()
                 first..last
             }
+            AlarmType.DEW_POINT -> {
+                val first = unitsConverter.getTemperatureValue(type.possibleRange.first.toDouble()).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.possibleRange.last.toDouble()).toFloat()
+                first..last
+            }
             else -> type.possibleRange.first.toFloat()..type.possibleRange.last.toFloat()
         }
     }
@@ -53,6 +58,11 @@ class AlarmsInteractor(
                 val last = unitsConverter.getPressureValue(type.extraRange.last.toDouble()).toFloat()
                 first..last
             }
+            AlarmType.DEW_POINT -> {
+                val first = unitsConverter.getTemperatureValue(type.extraRange.first.toDouble()).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.extraRange.last.toDouble()).toFloat()
+                first..last
+            }
             else -> type.extraRange.first.toFloat()..type.extraRange.last.toFloat()
         }
     }
@@ -61,6 +71,7 @@ class AlarmsInteractor(
         return when (type) {
             AlarmType.TEMPERATURE -> unitsConverter.getTemperatureValue(value.toDouble()).toFloat()
             AlarmType.PRESSURE -> unitsConverter.getPressureValue(value.toDouble()).toFloat()
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureValue(value.toDouble()).toFloat()
             else -> value
         }
     }
@@ -73,6 +84,7 @@ class AlarmsInteractor(
         return when (type) {
             AlarmType.TEMPERATURE -> unitsConverter.getTemperatureCelsiusValue(value).round(4)
             AlarmType.PRESSURE -> unitsConverter.getPressurePascalValue(value)
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureCelsiusValue(value).round(4)
             else -> value
         }
     }
@@ -108,7 +120,7 @@ class AlarmsInteractor(
                     is UnitType.CO2.Ppm -> {
                         if (sensor.latestMeasurement?.co2 != null) alarmTypes.add(AlarmType.CO2)
                     }
-                    is UnitType.HumidityUnit -> {
+                    is UnitType.HumidityUnit.Relative -> {
                         if (sensor.latestMeasurement?.humidity != null) alarmTypes.add(AlarmType.HUMIDITY)
                     }
                     is UnitType.Luminosity.Lux -> {
@@ -147,6 +159,15 @@ class AlarmsInteractor(
                     }
                     is UnitType.VOC.VocIndex -> {
                         if (sensor.latestMeasurement?.voc != null) alarmTypes.add(AlarmType.VOC)
+                    }
+                    is UnitType.HumidityUnit.Absolute -> {
+                        if (sensor.latestMeasurement?.absoluteHumidity != null) alarmTypes.add(AlarmType.ABSOLUTE_HUMIDITY)
+                    }
+                    is UnitType.HumidityUnit.DewPoint -> {
+                        if (sensor.latestMeasurement?.dew_point != null) alarmTypes.add(AlarmType.DEW_POINT)
+                    }
+                    is UnitType.BatteryVoltageUnit -> {
+                        if (sensor.latestMeasurement?.voltage != null) alarmTypes.add(AlarmType.BATTERY_VOLTAGE)
                     }
                     else -> {}
                 }
@@ -195,6 +216,11 @@ class AlarmsInteractor(
             AlarmType.VOC -> context.getString(R.string.voc_index)
             AlarmType.NOX -> context.getString(R.string.nox_index)
             AlarmType.AQI -> context.getString(R.string.air_quality)
+            AlarmType.ABSOLUTE_HUMIDITY -> context.getString(R.string.absolute_humidity) +
+                    " (${context.getString(R.string.humidity_absolute_unit)})"
+            AlarmType.DEW_POINT -> context.getString(R.string.dewpoint_with_unit, unitsConverter.getTemperatureUnitString())
+            AlarmType.BATTERY_VOLTAGE -> context.getString(R.string.battery_voltage)+
+                    " (${context.getString(R.string.voltage_unit)})"
         }
     }
 
@@ -216,6 +242,9 @@ class AlarmsInteractor(
             AlarmType.VOC -> context.getString(R.string.unit_voc)
             AlarmType.NOX -> context.getString(R.string.unit_nox)
             AlarmType.AQI -> ""
+            AlarmType.ABSOLUTE_HUMIDITY -> context.getString(R.string.humidity_absolute_unit)
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureUnitString()
+            AlarmType.BATTERY_VOLTAGE -> context.getString(R.string.voltage_unit)
         }
     }
 
