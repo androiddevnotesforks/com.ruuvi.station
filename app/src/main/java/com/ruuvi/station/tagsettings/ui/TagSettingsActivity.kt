@@ -33,6 +33,8 @@ import com.ruuvi.station.dashboard.ui.DashboardActivity
 import com.ruuvi.station.tagdetails.ui.SensorCardActivity
 import com.ruuvi.station.tagsettings.di.RemoveSensorViewModelArgs
 import com.ruuvi.station.tagsettings.di.TagSettingsViewModelArgs
+import com.ruuvi.station.tagsettings.ui.led_control.LedControlScreen
+import com.ruuvi.station.tagsettings.ui.led_control.LedControlViewModel
 import com.ruuvi.station.tagsettings.ui.visible_measurements.VisibleMeasurements
 import com.ruuvi.station.tagsettings.ui.visible_measurements.VisibleMeasurementsViewModel
 import com.ruuvi.station.util.extensions.viewModel
@@ -185,9 +187,22 @@ class TagSettingsActivity : AppCompatActivity(), KodeinAware {
                                     allOptions = possibleOptions
                                 )
                             }
+
+                            composable(
+                                route = SensorSettingsRoutes.LED_CONTROL,
+                                enterTransition = enterTransition,
+                                exitTransition = exitTransition
+                            ) {
+                                val ledControlViewModel: LedControlViewModel by viewModel() {
+                                    intent.getStringExtra(TAG_ID)?.let {
+                                        it
+                                    }
+                                }
+                                LedControlScreen(
+                                    viewModel = ledControlViewModel
+                                )
+                            }
                         }
-
-
                     }
                 }
 

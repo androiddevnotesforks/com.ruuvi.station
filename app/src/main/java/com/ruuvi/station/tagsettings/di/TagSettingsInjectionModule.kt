@@ -4,6 +4,7 @@ import com.ruuvi.station.tagsettings.domain.TagSettingsInteractor
 import com.ruuvi.station.tagsettings.ui.BackgroundViewModel
 import com.ruuvi.station.tagsettings.ui.RemoveSensorViewModel
 import com.ruuvi.station.tagsettings.ui.TagSettingsViewModel
+import com.ruuvi.station.tagsettings.ui.led_control.LedControlViewModel
 import com.ruuvi.station.tagsettings.ui.visible_measurements.VisibleMeasurementsViewModel
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
@@ -28,6 +29,10 @@ object TagSettingsInjectionModule {
 
         bind<VisibleMeasurementsViewModel>() with factory { sensorId: String ->
             VisibleMeasurementsViewModel(sensorId, instance(), instance(), instance(), instance(), instance(), instance())
+        }
+
+        bind<LedControlViewModel>() with factory { sensorId: String ->
+            LedControlViewModel(sensorId, instance(), instance())
         }
 
         bind<RemoveSensorViewModel>() with factory { args: RemoveSensorViewModelArgs ->

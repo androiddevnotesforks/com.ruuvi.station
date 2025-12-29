@@ -91,6 +91,17 @@ fun SensorSettings(
                 onNavigate.invoke(SensorSettingsRoutes.VISIBLE_MEASUREMENTS)
             }
         }
+        if (sensorState.isAir()) {
+            DividerRuuvi()
+
+            TextEditWithCaptionButton(
+                title = stringResource(R.string.led_brightness_control),
+                icon = painterResource(id = R.drawable.arrow_forward_16),
+                tint = RuuviStationTheme.colors.trackInactive
+            ) {
+                onNavigate.invoke(SensorSettingsRoutes.LED_CONTROL)
+            }
+        }
         AlarmsGroup(
             scaffoldState,
             alarmsViewModel
@@ -134,10 +145,6 @@ fun SensorSettings(
         ) {
             Paragraph(text = stringResource(id = R.string.do_you_own_sensor))
         }
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        viewModel.updateSensorFirmwareVersion()
     }
 
     LaunchedEffect(key1 = Unit) {
