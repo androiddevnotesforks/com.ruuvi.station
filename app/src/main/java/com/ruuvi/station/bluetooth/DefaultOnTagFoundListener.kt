@@ -49,8 +49,6 @@ class DefaultOnTagFoundListener(
         }
         (ioScope + coroutineExceptionHandler).launch {
             ruuviTag.id?.let { sensorId ->
-                val shoulddrop = shouldDropAdvertisement(ruuviTag)
-                Timber.d("shoulddrop $shoulddrop $ruuviTag")
                 if (shouldDropAdvertisement(ruuviTag)) return@launch
                 val dbTag = repository.getTagById(sensorId)
                 if (dbTag != null) {
