@@ -28,42 +28,42 @@ class AlarmsInteractor(
     fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Float> {
         return when (type) {
             AlarmType.TEMPERATURE -> {
-                val first = unitsConverter.getTemperatureValue(type.possibleRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.possibleRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.possibleRange.start).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.possibleRange.endInclusive).toFloat()
                 first..last
             }
             AlarmType.PRESSURE -> {
-                val first = unitsConverter.getPressureValue(type.possibleRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getPressureValue(type.possibleRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getPressureValue(type.possibleRange.start).toFloat()
+                val last = unitsConverter.getPressureValue(type.possibleRange.endInclusive).toFloat()
                 first..last
             }
             AlarmType.DEW_POINT -> {
-                val first = unitsConverter.getTemperatureValue(type.possibleRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.possibleRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.possibleRange.start).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.possibleRange.endInclusive).toFloat()
                 first..last
             }
-            else -> type.possibleRange.first.toFloat()..type.possibleRange.last.toFloat()
+            else -> type.possibleRange.start.toFloat()..type.possibleRange.endInclusive.toFloat()
         }
     }
 
     fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Float> {
         return when (type) {
             AlarmType.TEMPERATURE -> {
-                val first = unitsConverter.getTemperatureValue(type.extraRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.extraRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.extraRange.start).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.extraRange.endInclusive).toFloat()
                 first..last
             }
             AlarmType.PRESSURE -> {
-                val first = unitsConverter.getPressureValue(type.extraRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getPressureValue(type.extraRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getPressureValue(type.extraRange.start).toFloat()
+                val last = unitsConverter.getPressureValue(type.extraRange.endInclusive).toFloat()
                 first..last
             }
             AlarmType.DEW_POINT -> {
-                val first = unitsConverter.getTemperatureValue(type.extraRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.extraRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.extraRange.start).toFloat()
+                val last = unitsConverter.getTemperatureValue(type.extraRange.endInclusive).toFloat()
                 first..last
             }
-            else -> type.extraRange.first.toFloat()..type.extraRange.last.toFloat()
+            else -> type.extraRange.start.toFloat()..type.extraRange.endInclusive.toFloat()
         }
     }
 

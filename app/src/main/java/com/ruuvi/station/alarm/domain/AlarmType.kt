@@ -1,28 +1,33 @@
 package com.ruuvi.station.alarm.domain
 
-enum class AlarmType(val value: Int, val networkCode: String?, val possibleRange: IntRange, val extraRange: IntRange) {
-    TEMPERATURE(0, "temperature", -40 .. 85, -55..150),
-    HUMIDITY(1, "humidity", 0 .. 100, 0 .. 100),
-    PRESSURE(2, "pressure", 50000 .. 115500, 50000 .. 115500),
-    RSSI(3, "signal", -105 .. 0, -105 .. 0),
-    MOVEMENT(4, "movement", 0 .. 0, 0 .. 0),
-    OFFLINE(5, "offline", 120..86400, 120..86400),
-    CO2(6, "co2", 350..2500, 350..2500),
-    PM10(7, "pm10", 0..250, 0..250),
-    PM25(8, "pm25", 0..250, 0..250),
-    PM40(9, "pm40", 0..250, 0..250),
-    PM100(10, "pm100", 0..250, 0..250),
-    SOUND(11, "sound", 0..127, 0..127),
-    LUMINOSITY(12, "luminosity", 0..144284, 0..144284),
-    VOC(13, "voc", 0..500, 0..500),
-    NOX(14, "nox", 0..500, 0..500),
-    AQI(15, "aqi", 0 .. 100, 0 .. 100),
-    ABSOLUTE_HUMIDITY(16, "absolute_humidity", 0 .. 650,0 .. 650),
-    DEW_POINT(17, "dew_point", -55..150, -55..150),
-    BATTERY_VOLTAGE(18, "battery_voltage", 0 .. 5, 0 .. 5);
+enum class AlarmType(
+    val value: Int,
+    val networkCode: String?,
+    val possibleRange: ClosedFloatingPointRange<Double>,
+    val extraRange: ClosedFloatingPointRange<Double>
+) {
+    TEMPERATURE(0, "temperature", -40.0..85.0, -55.0..150.0),
+    HUMIDITY(1, "humidity", 0.0..100.0, 0.0..100.0),
+    PRESSURE(2, "pressure", 50000.0..115500.0, 50000.0..115500.0),
+    RSSI(3, "signal", -105.0..0.0, -105.0..0.0),
+    MOVEMENT(4, "movement", 0.0..0.0, 0.0..0.0),
+    OFFLINE(5, "offline", 120.0..86400.0, 120.0..86400.0),
+    CO2(6, "co2", 350.0..2500.0, 350.0..2500.0),
+    PM10(7, "pm10", 0.0..250.0, 0.0..250.0),
+    PM25(8, "pm25", 0.0..250.0, 0.0..250.0),
+    PM40(9, "pm40", 0.0..250.0, 0.0..250.0),
+    PM100(10, "pm100", 0.0..250.0, 0.0..250.0),
+    SOUND(11, "sound", 0.0..127.0, 0.0..127.0),
+    LUMINOSITY(12, "luminosity", 0.0..144284.0, 0.0..144284.0),
+    VOC(13, "voc", 0.0..500.0, 0.0..500.0),
+    NOX(14, "nox", 0.0..500.0, 0.0..500.0),
+    AQI(15, "aqi", 0.0..100.0, 0.0..100.0),
+    ABSOLUTE_HUMIDITY(16, "humidityAbsolute", 0.0..50.0, 0.0..50.0),
+    DEW_POINT(17, "dewPoint", -45.0..85.0, -45.0..85.0),
+    BATTERY_VOLTAGE(18, "battery", 1.8..3.6, 1.8..3.6);
 
 
-    fun valueInRange(value: Double): Boolean = value >= extraRange.first && value <= extraRange.last
+    fun valueInRange(value: Double): Boolean = value >= extraRange.start && value <= extraRange.endInclusive
 
     companion object {
         fun getByNetworkCode(networkCode: String): AlarmType? = values().firstOrNull { it.networkCode == networkCode }
