@@ -84,7 +84,10 @@ fun AlarmsGroup(
             Timber.d("AlarmItem $itemState")
             val title = viewModel.getTitle(itemState.type)
             when (itemState.type) {
-                AlarmType.TEMPERATURE, AlarmType.HUMIDITY, AlarmType.PRESSURE, AlarmType.CO2, AlarmType.PM25, AlarmType.PM10, AlarmType.PM40, AlarmType.PM100, AlarmType.VOC, AlarmType.NOX, AlarmType.SOUND, AlarmType.LUMINOSITY, AlarmType.AQI->
+                AlarmType.TEMPERATURE, AlarmType.HUMIDITY, AlarmType.PRESSURE, AlarmType.CO2,
+                AlarmType.PM25, AlarmType.PM10, AlarmType.PM40, AlarmType.PM100, AlarmType.VOC,
+                AlarmType.NOX, AlarmType.SOUND, AlarmType.LUMINOSITY, AlarmType.AQI,
+                AlarmType.DEW_POINT, AlarmType.BATTERY_VOLTAGE, AlarmType.ABSOLUTE_HUMIDITY->
                     AlertEditItem(
                         title = title,
                         alarmState = itemState,
