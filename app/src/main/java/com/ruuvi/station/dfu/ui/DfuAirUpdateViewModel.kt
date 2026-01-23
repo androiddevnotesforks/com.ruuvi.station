@@ -119,7 +119,7 @@ class DfuAirUpdateViewModel(
                         val currentFw = sensorVersion.fw
                         val latestFw = selectedOption.version
 
-                        if (isNewerVersion(latestFw, currentFw)) {
+                        if (isNewerVersion(currentFw, latestFw)) {
                             return@combine true
                         } else {
                             _uiEvent.emit(UiEvent.NavigateNew(AlreadyUpdated, true))
