@@ -87,7 +87,13 @@ fun AlarmsGroup(
                 AlarmType.TEMPERATURE, AlarmType.HUMIDITY, AlarmType.PRESSURE, AlarmType.CO2,
                 AlarmType.PM25, AlarmType.PM10, AlarmType.PM40, AlarmType.PM100, AlarmType.VOC,
                 AlarmType.NOX, AlarmType.SOUND, AlarmType.LUMINOSITY, AlarmType.AQI,
-                AlarmType.DEW_POINT, AlarmType.BATTERY_VOLTAGE, AlarmType.ABSOLUTE_HUMIDITY->
+                AlarmType.DEW_POINT, AlarmType.BATTERY_VOLTAGE, AlarmType.ABSOLUTE_HUMIDITY-> {
+                    val steps = if (itemState.type == AlarmType.BATTERY_VOLTAGE) {
+                        val range = AlarmType.BATTERY_VOLTAGE.possibleRange
+                        ((range.endInclusive - range.start) / 0.1).roundToInt() - 1
+                    } else {
+                        0
+                    }
                     AlertEditItem(
                         title = title,
                         alarmState = itemState,
@@ -101,8 +107,10 @@ fun AlarmsGroup(
                         getExtraRange = viewModel::getExtraRange,
                         validateRange = viewModel::validateRange,
                         manualRangeSave = viewModel::manualRangeSave,
-                        getUnit = viewModel::getUnit
+                        getUnit = viewModel::getUnit,
+                        steps = steps
                     )
+                }
                 AlarmType.RSSI ->
                     RssiAlertEditItem(
                         title = title,
@@ -222,7 +230,8 @@ fun AlertEditItem(
     getExtraRange: (AlarmType) -> ClosedFloatingPointRange<Float>,
     validateRange: (AlarmType, Double?, Double?) -> Boolean,
     manualRangeSave: (AlarmType, Double?, Double?) -> Unit,
-    getUnit: (AlarmType) -> String
+    getUnit: (AlarmType) -> String,
+    steps: Int = 0,
 ) {
     var openDescriptionDialog by remember { mutableStateOf(false) }
     var openAlarmEditDialog by remember { mutableStateOf(false) }
@@ -271,7 +280,8 @@ fun AlertEditItem(
             },
             onValueChangeFinished = {
                 saveRange.invoke(alarmState.type)
-            }
+            },
+            steps = steps
         )
 
         if (sensorState.latestMeasurement != null) {

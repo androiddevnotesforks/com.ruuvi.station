@@ -4,7 +4,9 @@ enum class AlarmType(
     val value: Int,
     val networkCode: String?,
     val possibleRange: ClosedFloatingPointRange<Double>,
-    val extraRange: ClosedFloatingPointRange<Double>
+    val extraRange: ClosedFloatingPointRange<Double>,
+    val step: Double = 1.0,
+    val roundPlaces: Int = 0
 ) {
     TEMPERATURE(0, "temperature", -40.0..85.0, -55.0..150.0),
     HUMIDITY(1, "humidity", 0.0..100.0, 0.0..100.0),
@@ -24,7 +26,7 @@ enum class AlarmType(
     AQI(15, "aqi", 0.0..100.0, 0.0..100.0),
     ABSOLUTE_HUMIDITY(16, "humidityAbsolute", 0.0..50.0, 0.0..50.0),
     DEW_POINT(17, "dewPoint", -45.0..85.0, -45.0..85.0),
-    BATTERY_VOLTAGE(18, "battery", 1.8..3.6, 1.8..3.6);
+    BATTERY_VOLTAGE(18, "battery", 1.8..3.6, 1.8..3.6, 0.1, roundPlaces = 1);
 
 
     fun valueInRange(value: Double): Boolean = value >= extraRange.start && value <= extraRange.endInclusive

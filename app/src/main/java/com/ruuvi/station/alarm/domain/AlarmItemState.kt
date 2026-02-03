@@ -44,8 +44,8 @@ data class AlarmItemState(
                 max = max.toDouble(),
                 rangeLow = rangeLow,
                 rangeHigh = rangeHigh,
-                displayLow = alarmsInteractor.getDisplayValue(rangeLow),
-                displayHigh = alarmsInteractor.getDisplayValue(rangeHigh),
+                displayLow = alarmsInteractor.getDisplayValue(rangeLow, type.roundPlaces),
+                displayHigh = alarmsInteractor.getDisplayValue(rangeHigh, type.roundPlaces),
                 customDescription = alarm.customDescription,
                 mutedTill = alarm.mutedTill,
                 extended = alarm.extended
@@ -67,8 +67,8 @@ data class AlarmItemState(
                 max = max.toDouble(),
                 rangeLow = rangeLow,
                 rangeHigh = rangeHigh,
-                displayLow = alarmsInteractor.getDisplayValue(rangeLow),
-                displayHigh = alarmsInteractor.getDisplayValue(rangeHigh),
+                displayLow = alarmsInteractor.getDisplayValue(rangeLow, alarmType.roundPlaces),
+                displayHigh = alarmsInteractor.getDisplayValue(rangeHigh, alarmType.roundPlaces),
             )
         }
     }

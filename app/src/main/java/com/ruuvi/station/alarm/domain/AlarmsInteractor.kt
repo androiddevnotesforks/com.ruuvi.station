@@ -89,9 +89,9 @@ class AlarmsInteractor(
         }
     }
 
-    fun getDisplayValue(value: Float): String {
+    fun getDisplayValue(value: Float, roundPlaces: Int = 0): String {
         if (value.isInteger(0.009f)) {
-            return getDisplayApproximateValue(value)
+            return getDisplayApproximateValue(value, roundPlaces)
         } else {
             return getDisplayPreciseValue(value)
         }
@@ -105,8 +105,12 @@ class AlarmsInteractor(
         }
     }
 
-    fun getDisplayApproximateValue(value: Float): String {
-        return value.round(0).toInt().toString()
+    fun getDisplayApproximateValue(value: Float, roundPlaces: Int = 0): String {
+        return if (roundPlaces > 0) {
+            value.round(roundPlaces).toString()
+        } else {
+            value.round(roundPlaces).toInt().toString()
+        }
     }
 
     fun getAvailableAlarmTypesForSensor(sensor: RuuviTag?): Set<AlarmType> {
