@@ -56,9 +56,9 @@ data class AlarmItemState(
 
         fun getDefaultState(sensorId: String, alarmType: AlarmType, alarmsInteractor: AlarmsInteractor): AlarmItemState {
             val rangeLow = alarmsInteractor.getRangeValue(alarmType, alarmType.possibleRange.start.toFloat())
-            val rangeHigh = alarmsInteractor.getRangeValue(alarmType, alarmType.possibleRange.start.toFloat())
+            val rangeHigh = alarmsInteractor.getRangeValue(alarmType, alarmType.possibleRange.endInclusive.toFloat())
             val min = if (alarmType == AlarmType.OFFLINE) 0 else alarmType.possibleRange.start
-            val max = if (alarmType == AlarmType.OFFLINE) 15 * 60 else alarmType.possibleRange.start
+            val max = if (alarmType == AlarmType.OFFLINE) 15 * 60 else alarmType.possibleRange.endInclusive
             return AlarmItemState(
                 sensorId = sensorId,
                 type = alarmType,
