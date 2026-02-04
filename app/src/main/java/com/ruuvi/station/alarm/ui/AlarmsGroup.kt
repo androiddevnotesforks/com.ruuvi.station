@@ -226,8 +226,8 @@ fun AlertEditItem(
     setDescription: (AlarmType, String) -> Unit,
     setRange: (AlarmType, ClosedFloatingPointRange<Float>) -> Unit,
     saveRange: (AlarmType) -> Unit,
-    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Float>,
-    getExtraRange: (AlarmType) -> ClosedFloatingPointRange<Float>,
+    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Double>,
+    getExtraRange: (AlarmType) -> ClosedFloatingPointRange<Double>,
     validateRange: (AlarmType, Double?, Double?) -> Boolean,
     manualRangeSave: (AlarmType, Double?, Double?) -> Unit,
     getUnit: (AlarmType) -> String,
@@ -352,7 +352,7 @@ fun RssiAlertEditItem(
     setDescription: (AlarmType, String) -> Unit,
     setRange: (AlarmType, ClosedFloatingPointRange<Float>) -> Unit,
     saveRange: (AlarmType) -> Unit,
-    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Float>,
+    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Double>,
     validateRange: (AlarmType, Double?, Double?) -> Boolean,
     manualRangeSave: (AlarmType, Double?, Double?) -> Unit,
     getUnit: (AlarmType) -> String
@@ -565,7 +565,7 @@ fun ChangeDescriptionDialog(
 @Composable
 fun AlarmEditDialog(
     alarmState: AlarmItemState,
-    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Float>,
+    getPossibleRange: (AlarmType) -> ClosedFloatingPointRange<Double>,
     validateRange: (AlarmType, Double?, Double?) -> Boolean,
     manualRangeSave: (AlarmType, Double?, Double?) -> Unit,
     getUnit: (AlarmType) -> String,
@@ -613,8 +613,11 @@ fun AlarmEditDialog(
 
         Spacer(modifier = Modifier.height(RuuviStationTheme.dimensions.medium))
 
-        val possibleMinString =
+        val possibleMinString = if (alarmState.type.roundPlaces > 0) {
+            possibleRange.start.toString() + " " + getUnit(alarmState.type)
+        } else {
             possibleRange.start.toInt().toString() + " " + getUnit(alarmState.type)
+        }
         Subtitle(text = stringResource(id = R.string.alert_dialog_min, possibleMinString))
         NumberTextFieldRuuvi(
             value = alarmState.displayLow,
@@ -626,8 +629,11 @@ fun AlarmEditDialog(
 
         Spacer(modifier = Modifier.height(RuuviStationTheme.dimensions.extended))
 
-        val possibleMaxString =
+        val possibleMaxString = if (alarmState.type.roundPlaces > 0) {
+            possibleRange.endInclusive.toString() + " " + getUnit(alarmState.type)
+        } else {
             possibleRange.endInclusive.toInt().toString() + " " + getUnit(alarmState.type)
+        }
         Subtitle(text = stringResource(id = R.string.alert_dialog_max, possibleMaxString))
         NumberTextFieldRuuvi(
             value = alarmState.displayHigh,

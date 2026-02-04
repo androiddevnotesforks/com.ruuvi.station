@@ -27,12 +27,12 @@ fun RuuviRangeSlider(
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    valueRange: ClosedFloatingPointRange<Double> = 0.0..1.0,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
-    val start = if (valueRange.contains(values.start)) values.start else valueRange.start
-    val end = if (valueRange.contains(values.endInclusive)) values.endInclusive else valueRange.endInclusive
+    val start = (if (valueRange.contains(values.start)) values.start else valueRange.start).toFloat()
+    val end = (if (valueRange.contains(values.endInclusive)) values.endInclusive else valueRange.endInclusive).toFloat()
     RangeSlider(
         value = minOf(start, end)..maxOf(start,end),
         onValueChange = {
@@ -50,7 +50,7 @@ fun RuuviRangeSlider(
             },
 
         enabled = enabled,
-        valueRange = valueRange,
+        valueRange = valueRange.start.toFloat()..valueRange.endInclusive.toFloat(),
         steps = steps,
         onValueChangeFinished = onValueChangeFinished,
         colors = RuuviSliderColors()

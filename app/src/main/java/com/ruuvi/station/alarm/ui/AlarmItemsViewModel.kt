@@ -47,10 +47,10 @@ class AlarmItemsViewModel(
         _alarms.addAll(alarmsInteractor.getAlarmsForSensor(sensorId).toTypedArray())
     }
 
-    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Float> =
+    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Double> =
         alarmsInteractor.getPossibleRange(type)
 
-    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Float> =
+    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Double> =
         alarmsInteractor.getExtraRange(type)
 
     fun setEnabled(type: AlarmType, enabled: Boolean) {
