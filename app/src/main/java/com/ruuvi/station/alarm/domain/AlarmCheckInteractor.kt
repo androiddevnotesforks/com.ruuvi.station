@@ -171,6 +171,18 @@ class AlarmCheckInteractor(
                         val displayThreshold = unitsConverter.getDisplayValue(thresholdValue.toFloat())
                         context.getString(resource, "$displayThreshold")
                     }
+                    AlarmType.ABSOLUTE_HUMIDITY -> {
+                        val displayThreshold = unitsConverter.getDisplayValue(thresholdValue.toFloat())
+                        context.getString(resource, "$displayThreshold ${context.getString(R.string.humidity_absolute_unit)}")
+                    }
+                    AlarmType.DEW_POINT -> {
+                        val displayThreshold = unitsConverter.getDisplayValue(thresholdValue.toFloat())
+                        context.getString(resource, "$displayThreshold ${unitsConverter.getTemperatureUnitString()}")
+                    }
+                    AlarmType.BATTERY_VOLTAGE -> {
+                        val displayThreshold = unitsConverter.getDisplayValue(thresholdValue.toFloat())
+                        context.getString(resource, "$displayThreshold ${context.getString(R.string.voltage_unit)}")
+                    }
                     AlarmType.MOVEMENT -> context.getString(resource)
                     else -> null
                 }
@@ -326,7 +338,7 @@ class AlarmCheckInteractor(
                         )
                     }
                 AlarmType.DEW_POINT.value ->
-                    ruuviTag.latestMeasurement?.absoluteHumidity?.let {
+                    ruuviTag.latestMeasurement?.dew_point?.let {
                         compareValues(
                             it,
                             R.string.alert_notification_dew_point_low_threshold to
@@ -334,7 +346,7 @@ class AlarmCheckInteractor(
                         )
                     }
                 AlarmType.BATTERY_VOLTAGE.value ->
-                    ruuviTag.latestMeasurement?.absoluteHumidity?.let {
+                    ruuviTag.latestMeasurement?.voltage?.let {
                         compareValues(
                             it,
                             R.string.alert_notification_battery_voltage_low_threshold to
