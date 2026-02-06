@@ -183,7 +183,7 @@ class AlarmItemsViewModel(
             if (type == AlarmType.OFFLINE) {
                 max >= possibleRange.start && max <= possibleRange.endInclusive
             } else {
-                min >= possibleRange.start && max <= possibleRange.endInclusive && min < max
+                min.round(4) >= possibleRange.start && max.round(4) <= possibleRange.endInclusive && min < max
             }
         } else {
             false
