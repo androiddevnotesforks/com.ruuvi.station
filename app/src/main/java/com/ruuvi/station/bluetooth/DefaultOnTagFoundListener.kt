@@ -120,7 +120,8 @@ class DefaultOnTagFoundListener(
 
     private fun shouldDropAdvertisement(ruuviTag: RuuviTagEntity): Boolean {
         val rssiFail = ruuviTag.rssi > 0
-        val pmFail = ruuviTag.isAir() && (
+        val pmFail = ruuviTag.isAir() && ruuviTag.pm1 != null && ruuviTag.pm25 != null
+                && ruuviTag.pm4 != null && ruuviTag.pm10 != null && (
                         (ruuviTag.pm1 ?: 0.0) > (ruuviTag.pm25 ?: 0.0) ||
                         (ruuviTag.pm25 ?: 0.0) > (ruuviTag.pm4 ?: 0.0) ||
                         (ruuviTag.pm4 ?: 0.0) > (ruuviTag.pm10 ?: 0.0))

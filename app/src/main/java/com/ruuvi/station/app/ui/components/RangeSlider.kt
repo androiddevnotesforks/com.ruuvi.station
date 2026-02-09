@@ -1,17 +1,23 @@
 package com.ruuvi.station.app.ui.components
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.RangeSlider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import com.ruuvi.station.app.ui.theme.RuuviStationTheme
 
 @Composable
 fun RuuviSliderColors() = SliderDefaults.colors(
     thumbColor = RuuviStationTheme.colors.accent,
     activeTrackColor = RuuviStationTheme.colors.accent,
-    inactiveTrackColor = RuuviStationTheme.colors.activeAlertThemed
+    inactiveTrackColor = RuuviStationTheme.colors.activeAlertThemed,
+    activeTickColor = Color.Transparent,
+    inactiveTickColor = Color.Transparent
 )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -21,20 +27,30 @@ fun RuuviRangeSlider(
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    valueRange: ClosedFloatingPointRange<Double> = 0.0..1.0,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
-    val start = if (valueRange.contains(values.start)) values.start else valueRange.start
-    val end = if (valueRange.contains(values.endInclusive)) values.endInclusive else valueRange.endInclusive
+    val start = (if (valueRange.contains(values.start)) values.start else valueRange.start).toFloat()
+    val end = (if (valueRange.contains(values.endInclusive)) values.endInclusive else valueRange.endInclusive).toFloat()
     RangeSlider(
         value = minOf(start, end)..maxOf(start,end),
         onValueChange = {
             onValueChange.invoke(it.start..it.endInclusive)
         },
-        modifier = modifier,
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    do {
+                        val event = awaitPointerEvent()
+                        event.changes.forEach { it.consume() }
+                    } while (event.changes.any { it.pressed })
+                }
+            },
+
         enabled = enabled,
-        valueRange = valueRange,
+        valueRange = valueRange.start.toFloat()..valueRange.endInclusive.toFloat(),
         steps = steps,
         onValueChangeFinished = onValueChangeFinished,
         colors = RuuviSliderColors()

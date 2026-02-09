@@ -25,35 +25,45 @@ class AlarmsInteractor(
     private val alarmCheckInteractor: AlarmCheckInteractor,
     ) {
 
-    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Float> {
+    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Double> {
         return when (type) {
             AlarmType.TEMPERATURE -> {
-                val first = unitsConverter.getTemperatureValue(type.possibleRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.possibleRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.possibleRange.start)
+                val last = unitsConverter.getTemperatureValue(type.possibleRange.endInclusive)
                 first..last
             }
             AlarmType.PRESSURE -> {
-                val first = unitsConverter.getPressureValue(type.possibleRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getPressureValue(type.possibleRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getPressureValue(type.possibleRange.start)
+                val last = unitsConverter.getPressureValue(type.possibleRange.endInclusive)
                 first..last
             }
-            else -> type.possibleRange.first.toFloat()..type.possibleRange.last.toFloat()
+            AlarmType.DEW_POINT -> {
+                val first = unitsConverter.getTemperatureValue(type.possibleRange.start)
+                val last = unitsConverter.getTemperatureValue(type.possibleRange.endInclusive)
+                first..last
+            }
+            else -> type.possibleRange.start..type.possibleRange.endInclusive
         }
     }
 
-    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Float> {
+    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Double> {
         return when (type) {
             AlarmType.TEMPERATURE -> {
-                val first = unitsConverter.getTemperatureValue(type.extraRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getTemperatureValue(type.extraRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getTemperatureValue(type.extraRange.start)
+                val last = unitsConverter.getTemperatureValue(type.extraRange.endInclusive)
                 first..last
             }
             AlarmType.PRESSURE -> {
-                val first = unitsConverter.getPressureValue(type.extraRange.first.toDouble()).toFloat()
-                val last = unitsConverter.getPressureValue(type.extraRange.last.toDouble()).toFloat()
+                val first = unitsConverter.getPressureValue(type.extraRange.start)
+                val last = unitsConverter.getPressureValue(type.extraRange.endInclusive)
                 first..last
             }
-            else -> type.extraRange.first.toFloat()..type.extraRange.last.toFloat()
+            AlarmType.DEW_POINT -> {
+                val first = unitsConverter.getTemperatureValue(type.extraRange.start)
+                val last = unitsConverter.getTemperatureValue(type.extraRange.endInclusive)
+                first..last
+            }
+            else -> type.extraRange.start..type.extraRange.endInclusive
         }
     }
 
@@ -61,6 +71,7 @@ class AlarmsInteractor(
         return when (type) {
             AlarmType.TEMPERATURE -> unitsConverter.getTemperatureValue(value.toDouble()).toFloat()
             AlarmType.PRESSURE -> unitsConverter.getPressureValue(value.toDouble()).toFloat()
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureValue(value.toDouble()).toFloat()
             else -> value
         }
     }
@@ -73,13 +84,14 @@ class AlarmsInteractor(
         return when (type) {
             AlarmType.TEMPERATURE -> unitsConverter.getTemperatureCelsiusValue(value).round(4)
             AlarmType.PRESSURE -> unitsConverter.getPressurePascalValue(value)
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureCelsiusValue(value).round(4)
             else -> value
         }
     }
 
-    fun getDisplayValue(value: Float): String {
+    fun getDisplayValue(value: Float, roundPlaces: Int = 0): String {
         if (value.isInteger(0.009f)) {
-            return getDisplayApproximateValue(value)
+            return getDisplayApproximateValue(value, roundPlaces)
         } else {
             return getDisplayPreciseValue(value)
         }
@@ -93,8 +105,12 @@ class AlarmsInteractor(
         }
     }
 
-    fun getDisplayApproximateValue(value: Float): String {
-        return value.round(0).toInt().toString()
+    fun getDisplayApproximateValue(value: Float, roundPlaces: Int = 0): String {
+        return if (roundPlaces > 0) {
+            value.round(roundPlaces).toString()
+        } else {
+            value.round(roundPlaces).toInt().toString()
+        }
     }
 
     fun getAvailableAlarmTypesForSensor(sensor: RuuviTag?): Set<AlarmType> {
@@ -108,7 +124,7 @@ class AlarmsInteractor(
                     is UnitType.CO2.Ppm -> {
                         if (sensor.latestMeasurement?.co2 != null) alarmTypes.add(AlarmType.CO2)
                     }
-                    is UnitType.HumidityUnit -> {
+                    is UnitType.HumidityUnit.Relative -> {
                         if (sensor.latestMeasurement?.humidity != null) alarmTypes.add(AlarmType.HUMIDITY)
                     }
                     is UnitType.Luminosity.Lux -> {
@@ -147,6 +163,15 @@ class AlarmsInteractor(
                     }
                     is UnitType.VOC.VocIndex -> {
                         if (sensor.latestMeasurement?.voc != null) alarmTypes.add(AlarmType.VOC)
+                    }
+                    is UnitType.HumidityUnit.Absolute -> {
+                        if (sensor.latestMeasurement?.absoluteHumidity != null) alarmTypes.add(AlarmType.ABSOLUTE_HUMIDITY)
+                    }
+                    is UnitType.HumidityUnit.DewPoint -> {
+                        if (sensor.latestMeasurement?.dew_point != null) alarmTypes.add(AlarmType.DEW_POINT)
+                    }
+                    is UnitType.BatteryVoltageUnit -> {
+                        if (sensor.latestMeasurement?.voltage != null) alarmTypes.add(AlarmType.BATTERY_VOLTAGE)
                     }
                     else -> {}
                 }
@@ -195,6 +220,11 @@ class AlarmsInteractor(
             AlarmType.VOC -> context.getString(R.string.voc_index)
             AlarmType.NOX -> context.getString(R.string.nox_index)
             AlarmType.AQI -> context.getString(R.string.air_quality)
+            AlarmType.ABSOLUTE_HUMIDITY -> context.getString(R.string.absolute_humidity) +
+                    " (${context.getString(R.string.humidity_absolute_unit)})"
+            AlarmType.DEW_POINT -> context.getString(R.string.dewpoint_with_unit, unitsConverter.getTemperatureUnitString())
+            AlarmType.BATTERY_VOLTAGE -> context.getString(R.string.battery_voltage)+
+                    " (${context.getString(R.string.voltage_unit)})"
         }
     }
 
@@ -216,6 +246,9 @@ class AlarmsInteractor(
             AlarmType.VOC -> context.getString(R.string.unit_voc)
             AlarmType.NOX -> context.getString(R.string.unit_nox)
             AlarmType.AQI -> ""
+            AlarmType.ABSOLUTE_HUMIDITY -> context.getString(R.string.humidity_absolute_unit)
+            AlarmType.DEW_POINT -> unitsConverter.getTemperatureUnitString()
+            AlarmType.BATTERY_VOLTAGE -> context.getString(R.string.voltage_unit)
         }
     }
 

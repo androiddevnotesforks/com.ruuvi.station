@@ -47,10 +47,10 @@ class AlarmItemsViewModel(
         _alarms.addAll(alarmsInteractor.getAlarmsForSensor(sensorId).toTypedArray())
     }
 
-    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Float> =
+    fun getPossibleRange(type: AlarmType): ClosedFloatingPointRange<Double> =
         alarmsInteractor.getPossibleRange(type)
 
-    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Float> =
+    fun getExtraRange(type: AlarmType): ClosedFloatingPointRange<Double> =
         alarmsInteractor.getExtraRange(type)
 
     fun setEnabled(type: AlarmType, enabled: Boolean) {
@@ -85,26 +85,26 @@ class AlarmItemsViewModel(
             Timber.d("setRange $editLow  ${range.start} ${alarmItem.rangeLow} || ${range.endInclusive} ${alarmItem.rangeHigh}")
             if (editHigh || editLow) {
                 val newAlarm = if (editHigh) {
-                    val high = if (range.endInclusive.diff(alarmItem.rangeLow) < 1) {
-                        (alarmItem.rangeLow + 1).round(0)
+                    val high = if (range.endInclusive.diff(alarmItem.rangeLow) < type.step) {
+                        (alarmItem.rangeLow + type.step).toFloat().round(type.roundPlaces)
                     } else {
                         range.endInclusive
                     }
                     this.editHigh = editHigh
                     alarmItem.copy(
                         rangeHigh = high,
-                        displayHigh = alarmsInteractor.getDisplayApproximateValue(high)
+                        displayHigh = alarmsInteractor.getDisplayApproximateValue(high, type.roundPlaces)
                     )
                 } else {
-                    val low = if (range.start.diff(alarmItem.rangeHigh) < 1) {
-                        (alarmItem.rangeHigh - 1).round(0)
+                    val low = if (range.start.diff(alarmItem.rangeHigh) < type.step) {
+                        (alarmItem.rangeHigh - type.step).toFloat().round(type.roundPlaces)
                     } else {
                         range.start
                     }
                     this.editLow = editLow
                     alarmItem.copy(
                         rangeLow = low,
-                        displayLow =alarmsInteractor.getDisplayApproximateValue(low)
+                        displayLow =alarmsInteractor.getDisplayApproximateValue(low, type.roundPlaces)
                     )
                 }
 
@@ -120,26 +120,26 @@ class AlarmItemsViewModel(
         if (alarmItem != null) {
 
             if (editHigh == true) {
-                var high = alarmItem.rangeHigh.round(0)
+                var high = alarmItem.rangeHigh.round(type.roundPlaces)
 
                 val savableHigh = alarmsInteractor.getSavableValue(type, high)
                 val newAlarm = alarmItem.copy(
                     max = savableHigh,
                     rangeHigh = alarmsInteractor.getRangeValue(type, savableHigh.toFloat()),
-                    displayHigh = alarmsInteractor.getDisplayValue(high),
+                    displayHigh = alarmsInteractor.getDisplayValue(high, type.roundPlaces),
                 )
                 _alarms[itemIndex] = newAlarm
                 saveAlarm(newAlarm)
 
             } else if (editLow == true) {
-                var low = alarmItem.rangeLow.round(0)
+                var low = alarmItem.rangeLow.round(type.roundPlaces)
 
                 val savableLow = alarmsInteractor.getSavableValue(type, low)
 
                 val newAlarm = alarmItem.copy(
                     min = savableLow,
                     rangeLow = alarmsInteractor.getRangeValue(type, savableLow.toFloat()),
-                    displayLow = alarmsInteractor.getDisplayValue(low),
+                    displayLow = alarmsInteractor.getDisplayValue(low, type.roundPlaces),
                 )
                 _alarms[itemIndex] = newAlarm
                 saveAlarm(newAlarm)
@@ -167,9 +167,9 @@ class AlarmItemsViewModel(
                 min = savableLow,
                 max = savableHigh,
                 rangeLow = alarmsInteractor.getRangeValue(type, savableLow.toFloat()),
-                displayLow = alarmsInteractor.getDisplayValue(min.toFloat()),
+                displayLow = alarmsInteractor.getDisplayValue(min.toFloat(), type.roundPlaces),
                 rangeHigh = alarmsInteractor.getRangeValue(type, savableHigh.toFloat()),
-                displayHigh = alarmsInteractor.getDisplayValue(max.toFloat()),
+                displayHigh = alarmsInteractor.getDisplayValue(max.toFloat(), type.roundPlaces),
                 extended = alarmItem.extended || extended
             )
             _alarms[itemIndex] = newAlarm
@@ -183,7 +183,7 @@ class AlarmItemsViewModel(
             if (type == AlarmType.OFFLINE) {
                 max >= possibleRange.start && max <= possibleRange.endInclusive
             } else {
-                min >= possibleRange.start && max <= possibleRange.endInclusive && min < max
+                min.round(4) >= possibleRange.start && max.round(4) <= possibleRange.endInclusive && min < max
             }
         } else {
             false

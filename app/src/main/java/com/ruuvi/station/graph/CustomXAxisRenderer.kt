@@ -7,6 +7,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler
 import timber.log.Timber
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.ceil
 
 class CustomXAxisRenderer(
     private val from: Long,
@@ -35,7 +36,7 @@ class CustomXAxisRenderer(
         Timber.d("computeAxisValues interval $interval")
 
         var firstPoint = ((from + min).toLong() / interval) * interval - from  - 2 * interval
-        var lastPoint =  ((from + max).toLong() / interval) * interval - from  + 2 * interval
+        var lastPoint =  (ceil((from + max).toDouble() / interval).toLong()) * interval - from  + 2 * interval
         Timber.d("computeAxisValues firstPoint $firstPoint lastPoint $lastPoint")
 
         if (range < interval) {

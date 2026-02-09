@@ -74,6 +74,8 @@ data class SensorMeasurements(
     var luminosity: EnvironmentValue?,
     var dBaAvg: EnvironmentValue?,
     var dBaPeak: EnvironmentValue?,
+    val absoluteHumidity: EnvironmentValue?,
+    val dew_point: EnvironmentValue?,
     val connectable: Boolean?,
     val dataFormat: Int,
     val updatedAt: Date
@@ -177,7 +179,9 @@ val sensorMeasurementsPreview =
         dBaPeak = null,
         connectable = null,
         dataFormat = 5,
-        updatedAt = Date()
+        updatedAt = Date(),
+        absoluteHumidity = null,
+        dew_point = null
     )
 
 val ruuviTagPreview = RuuviTag(

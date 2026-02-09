@@ -87,8 +87,8 @@ class AlarmRepository {
 
         val extraRange = getByDbCode(type).extraRange
         val possibleRange = getByDbCode(type).possibleRange
-        val extended = (!possibleRange.contains(min.toInt()) && extraRange.contains(min.toInt())) ||
-                (!possibleRange.contains(max.toInt()) && extraRange.contains(max.toInt()))
+        val extended = (!possibleRange.contains(min) && extraRange.contains(min)) ||
+                (!possibleRange.contains(max) && extraRange.contains(max))
 
         val min = if (type == Alarm.MOVEMENT) 0.0 else min
         val max = if (type == Alarm.MOVEMENT) 0.0 else max
