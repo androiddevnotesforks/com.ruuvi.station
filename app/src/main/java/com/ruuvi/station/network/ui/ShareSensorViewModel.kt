@@ -89,7 +89,7 @@ class ShareSensorViewModel (
     }
 
     fun getUrl(): String {
-        return "https://station.ruuvi.com/shares?sensor=$sensorId"
+        return "https://station.ruuvi.com/shares?sensor=$sensorId&minimalMode=true"
     }
     private fun setEmailsFromRepository() {
         emails.value = sensorShareListRepository.getShareListForSensor(sensorId).map { it.userEmail }
