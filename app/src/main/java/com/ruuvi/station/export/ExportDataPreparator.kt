@@ -7,6 +7,7 @@ import com.ruuvi.station.bluetooth.util.extensions.roundHalfUp
 import com.ruuvi.station.database.domain.SensorHistoryRepository
 import com.ruuvi.station.database.domain.SensorSettingsRepository
 import com.ruuvi.station.database.domain.TagRepository
+import com.ruuvi.station.database.tables.RuuviTagEntity
 import com.ruuvi.station.database.tables.TagSensorReading
 import com.ruuvi.station.tag.domain.RuuviTag.Companion.dataFormatIsAir
 import com.ruuvi.station.units.domain.HumidityConverter
@@ -32,7 +33,7 @@ class ExportDataPreparator(
     fun prepareExportData(sensorId: String): ExportData? {
         val tag = repository.getTagById(sensorId) ?: return null
         val sensorSettings = sensorSettingsRepository.getSensorSettings(sensorId)
-        val sensorName = tag.displayName()
+        val sensorName = sensorSettings?.name ?: ""
 
         val readings = sensorHistoryRepository.getHistory(sensorId, GlobalSettings.historyLengthHours)
             .map {
@@ -52,8 +53,8 @@ class ExportDataPreparator(
         val dataFormat = tag.dataFormat
         val isAir = dataFormatIsAir(dataFormat)
 
-        val columns = buildColumns(dataFormat, isAir)
-        val rows = readings.map { reading -> buildRow(reading, dataFormat, isAir) }
+        val columns = buildColumns(tag, dataFormat, isAir)
+        val rows = readings.map { reading -> buildRow(tag, reading, dataFormat, isAir) }
 
         return ExportData(
             sensorName = sensorName,
@@ -62,7 +63,7 @@ class ExportDataPreparator(
         )
     }
 
-    private fun buildColumns(dataFormat: Int, isAir: Boolean): List<ExportColumn> {
+    private fun buildColumns(tagEntity: RuuviTagEntity, dataFormat: Int, isAir: Boolean): List<ExportColumn> {
         val columns = mutableListOf<ExportColumn>()
 
         // Date
@@ -71,43 +72,47 @@ class ExportDataPreparator(
         // Air Quality values
         if (isAir) {
             columns.add(ExportColumn(context.getString(R.string.aqi)))
-            columns.add(ExportColumn("${context.getString(R.string.co2)} (ppm)"))
-            columns.add(ExportColumn("${context.getString(R.string.pm10)} (µg/m³)"))
-            columns.add(ExportColumn("${context.getString(R.string.pm25)} (µg/m³)"))
-            columns.add(ExportColumn("${context.getString(R.string.pm40)} (µg/m³)"))
-            columns.add(ExportColumn("${context.getString(R.string.pm100)} (µg/m³)"))
+            columns.add(ExportColumn("${context.getString(R.string.co2)} (${context.getString(R.string.unit_co2)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pm10)} (${context.getString(R.string.unit_pm10)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pm25)} (${context.getString(R.string.unit_pm25)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pm40)} (${context.getString(R.string.unit_pm40)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pm100)} (${context.getString(R.string.unit_pm100)})"))
             columns.add(ExportColumn("${context.getString(R.string.voc_index)}"))
             columns.add(ExportColumn("${context.getString(R.string.nox_index)}"))
         }
 
         // Temperature
-        columns.add(ExportColumn("${context.getString(R.string.temperature)} (°C)"))
-        columns.add(ExportColumn("${context.getString(R.string.temperature)} (°F)"))
-        columns.add(ExportColumn("${context.getString(R.string.temperature)} (K)"))
+        columns.add(ExportColumn("${context.getString(R.string.temperature)} (${context.getString(R.string.temperature_celsius_unit)})"))
+        columns.add(ExportColumn("${context.getString(R.string.temperature)} (${context.getString(R.string.temperature_fahrenheit_unit)})"))
+        columns.add(ExportColumn("${context.getString(R.string.temperature)} (${context.getString(R.string.temperature_kelvin_unit)})"))
 
-        // Humidity
-        columns.add(ExportColumn("${context.getString(R.string.humidity)} (%)"))
-        columns.add(ExportColumn("${context.getString(R.string.humidity)} (g/m³)"))
+        if (tagEntity.humidity != null) {
+            // Humidity
+            columns.add(ExportColumn("${context.getString(R.string.rel_humidity)} (${context.getString(R.string.humidity_relative_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.abs_humidity)} (${context.getString(R.string.humidity_absolute_unit)})"))
 
-        // Dew point
-        columns.add(ExportColumn("Dew point (°C)"))
-        columns.add(ExportColumn("Dew point (°F)"))
-        columns.add(ExportColumn("Dew point (K)"))
+            // Dew point
+            columns.add(ExportColumn("${context.getString(R.string.dewpoint)} (${context.getString(R.string.temperature_celsius_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.dewpoint)} (${context.getString(R.string.temperature_fahrenheit_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.dewpoint)} (${context.getString(R.string.temperature_kelvin_unit)})"))
+        }
 
-        // Pressure in all units
-        columns.add(ExportColumn("${context.getString(R.string.pressure)} (hPa)"))
-        columns.add(ExportColumn("${context.getString(R.string.pressure)} (Pa)"))
-        columns.add(ExportColumn("${context.getString(R.string.pressure)} (mmHg)"))
-        columns.add(ExportColumn("${context.getString(R.string.pressure)} (inHg)"))
+        if (tagEntity.pressure != null) {
+            // Pressure in all units
+            columns.add(ExportColumn("${context.getString(R.string.pressure)} (${context.getString(R.string.pressure_hpa_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pressure)} (${context.getString(R.string.pressure_pa_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pressure)} (${context.getString(R.string.pressure_mmhg_unit)})"))
+            columns.add(ExportColumn("${context.getString(R.string.pressure)} (${context.getString(R.string.pressure_inhg_unit)})"))
+        }
 
         // Movements (format 5)
         if (dataFormat == 5) {
-            columns.add(ExportColumn("${context.getString(R.string.movement_counter)}"))
+            columns.add(ExportColumn("${context.getString(R.string.movements)}"))
         }
 
         // Battery voltage (format 3 / 5)
         if (dataFormat == 3 || dataFormat == 5) {
-            columns.add(ExportColumn("${context.getString(R.string.battery_voltage)} (V)"))
+            columns.add(ExportColumn("${context.getString(R.string.battery)} (${context.getString(R.string.voltage_unit)})"))
         }
 
         // Acceleration (format 3 / 5)
@@ -118,17 +123,17 @@ class ExportDataPreparator(
         }
 
         // Signal Strength (RSSI)
-        columns.add(ExportColumn("Signal Strength (dBm)"))
+        columns.add(ExportColumn("${context.getString(R.string.signal_strength)} (${context.getString(R.string.signal_unit)})"))
 
         // Measurement sequence number
         if (dataFormat == 5 || isAir) {
-            columns.add(ExportColumn(context.getString(R.string.measurement_sequence_number)))
+            columns.add(ExportColumn(context.getString(R.string.meas_seq_number)))
         }
 
         return columns
     }
 
-    private fun buildRow(reading: TagSensorReading, dataFormat: Int, isAir: Boolean): List<Any?> {
+    private fun buildRow(tagEntity: RuuviTagEntity, reading: TagSensorReading, dataFormat: Int, isAir: Boolean): List<Any?> {
         val row = mutableListOf<Any?>()
 
         // Date
@@ -152,37 +157,49 @@ class ExportDataPreparator(
         row.add(tempC?.let { celsiusToFahrenheit(it).roundHalfUp(2) })
         row.add(tempC?.let { celsiusToKelvin(it).roundHalfUp(2) })
 
-        // Humidity
-        val relHumidity = reading.humidity
-        row.add(relHumidity?.roundHalfUp(2))
-        row.add(if (tempC != null && relHumidity != null) {
-            unitsConverter.getHumidityValue(relHumidity, tempC, HumidityUnit.Absolute)
-        } else null)
+        if (tagEntity.humidity != null) {
+            // Humidity
+            val relHumidity = reading.humidity
+            row.add(relHumidity?.roundHalfUp(2))
+            row.add(
+                if (tempC != null && relHumidity != null) {
+                    unitsConverter.getHumidityValue(relHumidity, tempC, HumidityUnit.Absolute)
+                } else null
+            )
 
-        // Dew point
-        if (tempC != null && relHumidity != null) {
-            val humidityConverter = HumidityConverter(tempC, relHumidity)
-            row.add(humidityConverter.toDewCelsius?.roundHalfUp(2))
-            row.add(humidityConverter.toDewFahrenheit?.roundHalfUp(2))
-            row.add(humidityConverter.toDewKelvin?.roundHalfUp(2))
-        } else {
-            row.add(null)
-            row.add(null)
-            row.add(null)
+            // Dew point
+            if (tempC != null && relHumidity != null) {
+                val humidityConverter = HumidityConverter(tempC, relHumidity)
+                row.add(humidityConverter.toDewCelsius?.roundHalfUp(2))
+                row.add(humidityConverter.toDewFahrenheit?.roundHalfUp(2))
+                row.add(humidityConverter.toDewKelvin?.roundHalfUp(2))
+            }
         }
 
         // Pressure
-        val pressurePa = reading.pressure
-        if (pressurePa != null) {
-            row.add(unitsConverter.getPressureValue(pressurePa, UnitType.PressureUnit.HectoPascal)) //hPa
-            row.add(pressurePa) // Pa
-            row.add(unitsConverter.getPressureValue(pressurePa, UnitType.PressureUnit.MmHg)) // mmHg
-            row.add(unitsConverter.getPressureValue(pressurePa, UnitType.PressureUnit.InchHg)) // inHg
-        } else {
-            row.add(null)
-            row.add(null)
-            row.add(null)
-            row.add(null)
+        if (tagEntity.pressure != null) {
+            val pressurePa = reading.pressure
+            if (pressurePa != null) {
+                row.add(
+                    unitsConverter.getPressureValue(
+                        pressurePa,
+                        UnitType.PressureUnit.HectoPascal
+                    )
+                ) //hPa
+                row.add(pressurePa) // Pa
+                row.add(
+                    unitsConverter.getPressureValue(
+                        pressurePa,
+                        UnitType.PressureUnit.MmHg
+                    )
+                ) // mmHg
+                row.add(
+                    unitsConverter.getPressureValue(
+                        pressurePa,
+                        UnitType.PressureUnit.InchHg
+                    )
+                ) // inHg
+            }
         }
 
         // Movements (format 5)

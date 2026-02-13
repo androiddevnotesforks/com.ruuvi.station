@@ -26,7 +26,11 @@ class XlsxExporter(
 
         val filenameDate = SimpleDateFormat("yyyyMMdd").format(Date())
         val filenameTime = SimpleDateFormat("HHmmssZ").format(Date())
-        val sensorName = exportData.sensorName.prepareFilename()
+        val sensorName = if (exportData.sensorName.isNullOrEmpty()) {
+            sensorId
+        } else {
+            exportData.sensorName.prepareFilename()
+        }
 
         val filename = "$cacheDir/${sensorName}_${filenameDate}T${filenameTime}.xlsx"
         val filePath = File(filename)
