@@ -8,9 +8,11 @@ fun Double.equalsEpsilon(other: Double, epsilon: Double = 0.00000001) = abs(this
 
 fun Double.diff(second: Double): Double = Math.abs(this - second)
 
-fun Double.round(places: Int): Double {
-    require(places >= 0)
-    var bd = BigDecimal.valueOf(this)
-    bd = bd.setScale(places, RoundingMode.HALF_UP)
-    return bd.toDouble()
+fun Double.round(decimals: Int): Double {
+    if (!this.isFinite()) {
+        return this
+    }
+    return BigDecimal.valueOf(this)
+        .setScale(decimals, RoundingMode.HALF_UP)
+        .toDouble()
 }

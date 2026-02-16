@@ -213,6 +213,8 @@
     <string name="cloud_only_mode_description">При активации опции Отключить Bluetooth приложение будет игнорировать любые измерения, отправленные датчиками Ruuvi по Bluetooth, когда датчики находятся рядом с маршрутизатором Ruuvi Gateway. Вместо этого приложение будет получать данные измерений датчиков исключительно из Ruuvi Cloud. Чтобы данные измерений передавались в Ruuvi Cloud, ваш датчик должен находиться вблизи маршрутизатора Ruuvi Gateway.</string>
     <string name="co2">CO₂</string>
     <string name="co2_with_unit">CO₂ (%1$s)</string>
+    <string name="communication_channels">Каналы связи</string>
+    <string name="communication_channels_description">Мне могут быть отправлены советы и другая полезная информация о продуктах Ruuvi.</string>
     <string name="confirm">Подтвердить</string>
     <string name="connected_reading_info">Обмениваюсь...</string>
     <string name="connecting">Соединение...</string>
