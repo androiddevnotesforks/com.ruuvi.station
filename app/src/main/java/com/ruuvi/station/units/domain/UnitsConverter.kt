@@ -11,8 +11,8 @@ import com.ruuvi.station.util.extensions.equalsEpsilon
 import com.ruuvi.station.util.extensions.isInteger
 import com.ruuvi.station.util.extensions.round
 class UnitsConverter (
-        private val context: Context,
-        private val preferences: PreferencesRepository
+    private val context: Context,
+    private val preferences: PreferencesRepository
 ) {
     fun getTitleForUnitType(unitType: UnitType): String {
         val unit = if (unitType is UnitType.HumidityUnit.DewPoint) {
@@ -273,7 +273,13 @@ class UnitsConverter (
         temperature: Double?,
         humidityUnit: HumidityUnit = getHumidityUnit()
     ): Double? {
-        val converter = temperature?.let { HumidityConverter(temperature, humidity/100) }
+        val converter = temperature?.let {
+            if (it !in -100.0..370.0) {
+                null
+            } else {
+                HumidityConverter(temperature, humidity/100)
+            }
+        }
 
         return when (humidityUnit) {
             HumidityUnit.Relative -> humidity.round(2)
