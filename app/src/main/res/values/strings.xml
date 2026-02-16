@@ -279,6 +279,8 @@
     <string name="cloud_stored_sharing">● App settings</string>
     <string name="co2">CO₂</string>
     <string name="co2_with_unit">CO₂ (%1$s)</string>
+    <string name="communication_channels">Communication channels</string>
+    <string name="communication_channels_description">I may be sent tips and other useful information regarding Ruuvi products.</string>
     <string name="confirm">Confirm</string>
     <string name="connected_reading_info">Synchronising...</string>
     <string name="connecting">Connecting...</string>

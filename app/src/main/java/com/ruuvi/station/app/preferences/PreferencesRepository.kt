@@ -360,6 +360,13 @@ class PreferencesRepository(
         preferences.disableEmailNotifications = value
     }
 
+    fun getMarketingPermission(): Boolean =
+        preferences.marketingPermission
+
+    fun setMarketingPermission(value: Boolean) {
+        preferences.marketingPermission = value
+    }
+
     fun isDisableTelegramNotifications(): Boolean =
         preferences.disableTelegramNotifications
 

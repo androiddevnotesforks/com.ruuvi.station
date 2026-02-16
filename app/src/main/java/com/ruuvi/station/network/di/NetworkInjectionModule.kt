@@ -52,7 +52,7 @@ object NetworkInjectionModule {
         bind<NetworkResponseLocalizer>() with provider { NetworkResponseLocalizer(instance()) }
 
         bind<MyAccountViewModel>() with provider {
-            MyAccountViewModel(instance(), instance(), instance(), instance())
+            MyAccountViewModel(instance(), instance(), instance(), instance(), instance())
         }
 
         bind<SignInViewModel>() with provider {

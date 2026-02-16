@@ -8,6 +8,7 @@ import com.ruuvi.station.network.data.response.GetSubscriptionResponse
 import com.ruuvi.station.network.domain.NetworkDataSyncInteractor
 import com.ruuvi.station.network.domain.NetworkSignInInteractor
 import com.ruuvi.station.network.domain.RuuviNetworkInteractor
+import com.ruuvi.station.settings.domain.AppSettingsInteractor
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,7 +21,8 @@ class MyAccountViewModel(
     private val networkDataSyncInteractor: NetworkDataSyncInteractor,
     private val preferencesRepository: PreferencesRepository,
     private val networkInteractor: RuuviNetworkInteractor,
-    private val networkSignInInteractor: NetworkSignInInteractor
+    private val networkSignInInteractor: NetworkSignInInteractor,
+    private val appSettingsInteractor: AppSettingsInteractor
 ): ViewModel() {
 
     val userEmail = preferencesRepository.getUserEmailLiveData()
@@ -30,6 +32,9 @@ class MyAccountViewModel(
 
     private val _subscription = MutableStateFlow<Subscription?>(null)
     val subscription: StateFlow<Subscription?> = _subscription
+
+    private var _marketingPermission = MutableStateFlow(appSettingsInteractor.getMarketingPermission())
+    val marketingPermission: StateFlow<Boolean> = _marketingPermission
 
     private val _tokens = MutableStateFlow<List<Pair<Long,String>>?>(null)
     val tokens: StateFlow<List<Pair<Long,String>>?> = _tokens
@@ -85,6 +90,11 @@ class MyAccountViewModel(
                 Timber.e(e)
             }
         }
+    }
+
+    fun setMarketingPermission(isEnabled: Boolean) {
+        appSettingsInteractor.setMarketingPermission(isEnabled)
+        _marketingPermission.value = appSettingsInteractor.getMarketingPermission()
     }
 }
 

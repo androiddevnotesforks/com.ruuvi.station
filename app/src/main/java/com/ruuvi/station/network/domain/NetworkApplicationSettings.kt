@@ -46,6 +46,7 @@ class NetworkApplicationSettings (
                     applySensorsOrder(response.data.settings)
                     applyDisableEmailNotifications(response.data.settings)
                     applyDisablePushNotifications(response.data.settings)
+                    applyMarketingPermission(response.data.settings)
                 }
                 if (response.data.settings.PROFILE_LANGUAGE_CODE.isNullOrEmpty()) {
                     updateProfileLanguage()
@@ -73,6 +74,7 @@ class NetworkApplicationSettings (
             updateSensorsOrder()
             updateDisableEmailNotifications()
             updateDisablePushNotifications()
+            updateMarketingPermission()
             false
         } else {
             true
@@ -217,6 +219,14 @@ class NetworkApplicationSettings (
             val disablePush = settings.DISABLE_PUSH_NOTIFICATIONS.toBooleanExtra()
             Timber.d("NetworkApplicationSettings-applyDisablePushNotifications: $disablePush")
             preferencesRepository.setDisablePushNotifications(disablePush)
+        }
+    }
+
+    private fun applyMarketingPermission(settings: NetworkUserSettings) {
+        if (settings.MARKTING_PERMISSION != null) {
+            val marketingPermission = settings.MARKTING_PERMISSION.toBooleanExtra()
+            Timber.d("NetworkApplicationSettings-applyMarketingPermission: $marketingPermission")
+            preferencesRepository.setMarketingPermission(marketingPermission)
         }
     }
 
@@ -385,6 +395,17 @@ class NetworkApplicationSettings (
         }
     }
 
+    fun updateMarketingPermission() {
+        if (networkInteractor.signedIn) {
+            val marketingPermission = preferencesRepository.getMarketingPermission()
+            Timber.d("NetworkApplicationSettings-updateMarketingPermission: $marketingPermission")
+            networkInteractor.updateUserSetting(
+                MARKTING_PERMISSION,
+                marketingPermission.toInt().toString()
+            )
+        }
+    }
+
     fun updateDisablePushNotifications() {
         if (networkInteractor.signedIn) {
             val disablePushNotifications = preferencesRepository.isDisablePushNotifications()
@@ -426,5 +447,6 @@ class NetworkApplicationSettings (
         val DISABLE_EMAIL_NOTIFICATIONS = "DISABLE_EMAIL_NOTIFICATIONS"
         val DISABLE_PUSH_NOTIFICATIONS = "DISABLE_PUSH_NOTIFICATIONS"
         val DISABLE_TELEGRAM_NOTIFICATIONS = "DISABLE_TELEGRAM_NOTIFICATIONS"
+        val MARKTING_PERMISSION = "MARKTING_PERMISSION"
     }
 }
