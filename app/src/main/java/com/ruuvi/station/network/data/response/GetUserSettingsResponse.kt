@@ -23,6 +23,7 @@ data class NetworkUserSettings(
     val DISABLE_EMAIL_NOTIFICATIONS: String?,
     val DISABLE_PUSH_NOTIFICATIONS: String?,
     val DISABLE_TELEGRAM_NOTIFICATIONS: String?,
+    val MARKTING_PERMISSION: String?,
 ) {
     fun isEmpty() =
                 BACKGROUND_SCAN_MODE == null &&
@@ -41,5 +42,6 @@ data class NetworkUserSettings(
                 SENSOR_ORDER == null &&
                 DISABLE_EMAIL_NOTIFICATIONS == null &&
                 DISABLE_PUSH_NOTIFICATIONS == null &&
-                DISABLE_TELEGRAM_NOTIFICATIONS == null
+                DISABLE_TELEGRAM_NOTIFICATIONS == null &&
+                MARKTING_PERMISSION == null
 }

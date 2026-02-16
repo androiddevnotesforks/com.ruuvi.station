@@ -50,8 +50,8 @@
     <string name="alert_notification_absolute_humidity_low_threshold">Absoluuttinen kosteus on alle %1$s</string>
     <string name="alert_notification_aqi_high_threshold">Ilmanlaatu on yli %1$s</string>
     <string name="alert_notification_aqi_low_threshold">Ilmanlaatu on alle %1$s</string>
-    <string name="alert_notification_battery_voltage_high_threshold">Akun jännite on yli %1$s</string>
-    <string name="alert_notification_battery_voltage_low_threshold">Akun jännite on alle %1$s</string>
+    <string name="alert_notification_battery_voltage_high_threshold">Paristojännite on yli %1$s</string>
+    <string name="alert_notification_battery_voltage_low_threshold">Paristojännite on alle %1$s</string>
     <string name="alert_notification_co2_high_threshold">CO₂ on yli %1$s</string>
     <string name="alert_notification_co2_low_threshold">CO₂ on alle %1$s</string>
     <string name="alert_notification_dew_point_high_threshold">Kastepiste on yli %1$s</string>
@@ -272,6 +272,8 @@
     <string name="cloud_stored_sharing">● Sovellusasetukset</string>
     <string name="co2">CO₂</string>
     <string name="co2_with_unit">CO₂ (%1$s)</string>
+    <string name="communication_channels">Viestintäkanavat</string>
+    <string name="communication_channels_description">Minulle voidaan lähettää vinkkejä ja muuta hyödyllistä tietoa Ruuvi-tuotteista.</string>
     <string name="confirm">Vahvista</string>
     <string name="connected_reading_info">Synkronoidaan...</string>
     <string name="connecting">Yhdistetään...</string>
