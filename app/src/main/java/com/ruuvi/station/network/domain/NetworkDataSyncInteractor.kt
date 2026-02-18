@@ -257,7 +257,7 @@ class NetworkDataSyncInteractor (
                     if (maxTimestamp != null) {
                         maxTimestamp++
                         since = Date(maxTimestamp * 1000)
-                        if (since.diffGreaterThan(60*1000)) {
+                        if (since.diffGreaterThan(60*1000) && data.size > 1) {
                             result = getSince(sensorId, since, 5000)
                             count++
                         }
