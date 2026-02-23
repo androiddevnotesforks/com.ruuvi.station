@@ -327,7 +327,9 @@ class NetworkDataSyncInteractor (
         userInfoData.sensors.forEach { sensor ->
             Timber.d("updateTags: $sensor")
             val sensorSettings = sensorSettingsRepository.getSensorSettingsOrCreate(sensor.sensor)
-            sensorSettings.updateFromNetwork(sensor)
+            if (sensor.lastUpdated > sensorSettings.lastUpdated) {
+                sensorSettings.updateFromNetwork(sensor)
+            }
 
             val tagEntry = tagRepository.getTagById(sensor.sensor)
             if (tagEntry?.favorite == false) {
@@ -358,10 +360,10 @@ class NetworkDataSyncInteractor (
             Timber.d("updateSensorSettings: $sensor displayOrder = ${sensor.settings?.displayOrder} defaultDisplayOrder = ${sensor.settings?.defaultDisplayOrder}")
 
             sensor.settings?.displayOrder?.let { displayOrder ->
-                sensorSettingsRepository.newDisplayOrder(sensor.sensor, displayOrder)
+                sensorSettingsRepository.newDisplayOrder(sensor.sensor, displayOrder, sensor.settings.displayOrder_lastUpdated ?: 0)
             }
             sensor.settings?.defaultDisplayOrder?.let { defaultDisplayOrder ->
-                sensorSettingsRepository.updateUseDefaultSensorOrder(sensor.sensor, defaultDisplayOrder.toBooleanExtra())
+                sensorSettingsRepository.updateUseDefaultSensorOrder(sensor.sensor, defaultDisplayOrder.toBooleanExtra(), sensor.settings.defaultDisplayOrder_lastUpdated ?: 0)
             }
         }
     }
