@@ -329,6 +329,8 @@ class NetworkDataSyncInteractor (
             val sensorSettings = sensorSettingsRepository.getSensorSettingsOrCreate(sensor.sensor)
             if (sensor.lastUpdated > sensorSettings.lastUpdated) {
                 sensorSettings.updateFromNetwork(sensor)
+            } else if (sensor.lastUpdated < sensorSettings.lastUpdated) {
+                networkInteractor.updateSensorToCloud(sensor.sensor)
             }
 
             val tagEntry = tagRepository.getTagById(sensor.sensor)

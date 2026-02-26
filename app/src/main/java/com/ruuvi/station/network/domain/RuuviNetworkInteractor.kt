@@ -172,6 +172,36 @@ class RuuviNetworkInteractor (
         }
     }
 
+    fun updateSensorToCloud(sensorId: String) {
+        val sensorSettings = sensorSettingsRepository.getSensorSettings(sensorId)
+        sensorSettings?.let { sensorSettings ->
+            if (!sensorSettings.networkSensor) {
+                sensorSettings.networkSensor = true
+                sensorSettings.update()
+            }
+
+            val networkRequest = NetworkRequest(NetworkRequestType.UPDATE_SENSOR, sensorId,
+                UpdateSensorRequest(
+                    sensor = sensorId,
+                    name = sensorSettings.displayName,
+                    offsetTemperature = sensorSettings.temperatureOffset ?: 0.0,
+                    offsetHumidity = sensorSettings.humidityOffset ?: 0.0,
+                    offsetPressure = sensorSettings.pressureOffset ?: 0.0,
+                    timestamp = sensorSettings.lastUpdated
+                ))
+            Timber.d("updateSensor $networkRequest")
+            networkRequestExecutor.registerRequest(networkRequest)
+
+            sensorSettings.userBackground?.let { background ->
+                uploadImage(
+                    sensorId = sensorId,
+                    filename = background,
+                    uploadNow = true
+                )
+            }
+        }
+    }
+
     fun updateSensorNameWithStatus(sensorId: String): Flow<OperationStatus>? {
         val sensorSettings = sensorSettingsRepository.getSensorSettings(sensorId)
         if (shouldSendSensorDataToNetwork(sensorId) && sensorSettings != null) {
