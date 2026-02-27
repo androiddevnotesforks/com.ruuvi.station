@@ -162,7 +162,7 @@ class NetworkDataSyncInteractor (
 
                 val benchUpdate1 = Date()
                 Timber.d("updateSensors")
-                updateSensors(sensorsInfo.data)
+                val sensorForBackgroundUpdate = updateSensors(sensorsInfo.data)
                 updateSensorSettings(sensorsInfo.data)
                 sendSyncEvent(NetworkSyncEvent.SensorsSynced)
                 firebaseInteractor.logSync(userEmail, sensorsInfo.data)
@@ -173,7 +173,7 @@ class NetworkDataSyncInteractor (
                 syncForPeriod(sensorsInfo.data, GlobalSettings.historyLengthHours)
                 val benchSync2 = Date()
                 Timber.d("benchmark-syncForPeriod-finish - ${benchSync2.time - benchSync1.time} ms")
-                updateBackgrounds(sensorsInfo.data)
+                updateBackgrounds(sensorForBackgroundUpdate)
                 networkAlertsSyncInteractor.updateAlertsFromNetwork(sensorsInfo)
                 networkShareListInteractor.updateSharingInfo(sensorsInfo)
                 networkRequestExecutor.executeScheduledRequests()
@@ -323,12 +323,15 @@ class NetworkDataSyncInteractor (
         }
     }
 
-    private suspend fun updateSensors(userInfoData: SensorsDenseResponseBody) {
+    // returns list of sensors that _may_ require background image update (from the cloud)
+    private fun updateSensors(userInfoData: SensorsDenseResponseBody): List<SensorsDenseInfo> {
+        val sensorsResult = mutableListOf<SensorsDenseInfo>()
         userInfoData.sensors.forEach { sensor ->
             Timber.d("updateTags: $sensor")
             val sensorSettings = sensorSettingsRepository.getSensorSettingsOrCreate(sensor.sensor)
             if (sensor.lastUpdated > sensorSettings.lastUpdated) {
                 sensorSettings.updateFromNetwork(sensor)
+                sensorsResult.add(sensor)
             } else if (sensor.lastUpdated < sensorSettings.lastUpdated) {
                 networkInteractor.updateSensorToCloud(sensor.sensor)
             }
@@ -355,6 +358,7 @@ class NetworkDataSyncInteractor (
                 tagRepository.deleteSensorAndRelatives(sensor.id)
             }
         }
+        return sensorsResult
     }
 
     private fun updateSensorSettings(userInfoData: SensorsDenseResponseBody) {
@@ -370,8 +374,8 @@ class NetworkDataSyncInteractor (
         }
     }
 
-    private suspend fun updateBackgrounds(userInfoData: SensorsDenseResponseBody) {
-        userInfoData.sensors.forEach { sensor ->
+    private suspend fun updateBackgrounds(sensors: List<SensorsDenseInfo>) {
+        sensors.forEach { sensor ->
             val sensorSettings = sensorSettingsRepository.getSensorSettings(sensor.sensor)
 
             if (sensorSettings != null) {
