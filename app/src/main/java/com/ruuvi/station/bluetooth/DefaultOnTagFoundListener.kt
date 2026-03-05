@@ -11,6 +11,7 @@ import com.ruuvi.station.database.domain.TagRepository
 import com.ruuvi.station.database.tables.RuuviTagEntity
 import com.ruuvi.station.database.tables.SensorSettings
 import com.ruuvi.station.database.tables.TagSensorReading
+import com.ruuvi.station.database.tables.isAir
 import com.ruuvi.station.dataforwarding.domain.DataForwardingSender
 import com.ruuvi.station.util.extensions.logData
 import kotlinx.coroutines.*
@@ -118,7 +119,13 @@ class DefaultOnTagFoundListener(
     }
 
     private fun shouldDropAdvertisement(ruuviTag: RuuviTagEntity): Boolean {
-        return ruuviTag.rssi > 0
+        val rssiFail = ruuviTag.rssi > 0
+        val pmFail = ruuviTag.isAir() && ruuviTag.pm1 != null && ruuviTag.pm25 != null
+                && ruuviTag.pm4 != null && ruuviTag.pm10 != null && (
+                        (ruuviTag.pm1 ?: 0.0) > (ruuviTag.pm25 ?: 0.0) ||
+                        (ruuviTag.pm25 ?: 0.0) > (ruuviTag.pm4 ?: 0.0) ||
+                        (ruuviTag.pm4 ?: 0.0) > (ruuviTag.pm10 ?: 0.0))
+        return rssiFail || pmFail
     }
 
     companion object {

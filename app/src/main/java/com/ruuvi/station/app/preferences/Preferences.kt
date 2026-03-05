@@ -408,6 +408,12 @@ class Preferences (val context: Context) {
             sharedPreferences.edit().putBoolean(PREF_SHOW_VISIBLE_MEASUREMENTS, value).apply()
         }
 
+    var useWebShare: Boolean
+        get() = sharedPreferences.getBoolean(PREF_USE_WEB_SHARE, false)
+        set(value) {
+            sharedPreferences.edit().putBoolean(PREF_USE_WEB_SHARE, value).apply()
+        }
+
     var sortedSensors: String
         get() = sharedPreferences.getString(PREF_DASHBOARD_SORTED_SENSORS, "") ?: ""
         set(sortedSensors) {
@@ -424,6 +430,12 @@ class Preferences (val context: Context) {
         get() = sharedPreferences.getBoolean(PREF_DISABLE_EMAIL_NOTIFICATIONS, false)
         set(value) {
             sharedPreferences.edit().putBoolean(PREF_DISABLE_EMAIL_NOTIFICATIONS, value).apply()
+        }
+
+    var marketingPermission: Boolean
+        get() = sharedPreferences.getBoolean(PREF_MARKETING_PERMISSION, true)
+        set(value) {
+            sharedPreferences.edit().putBoolean(PREF_MARKETING_PERMISSION, value).apply()
         }
 
     var disablePushNotifications: Boolean
@@ -518,6 +530,9 @@ class Preferences (val context: Context) {
         private const val PREF_INCREASED_CHART_SIZE = "pref_increased_chart_size"
         private const val PREF_BLUETOOTH_PERMISSION_REQUESTED = "pref_bluetooth_permission_requested"
         private const val PREF_SHOW_VISIBLE_MEASUREMENTS = "pref_show_visible_measurements"
+        private const val PREF_MARKETING_PERMISSION = "pref_marketing_permission"
+
+        private const val PREF_USE_WEB_SHARE = "pref_use_web_share"
 
         private const val DEFAULT_TEMPERATURE_UNIT = "C"
         private const val DEFAULT_DATA_FORWARDING_URL = ""

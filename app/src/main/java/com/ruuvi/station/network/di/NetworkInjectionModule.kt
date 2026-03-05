@@ -42,7 +42,7 @@ object NetworkInjectionModule {
         }
 
         bind<ShareSensorViewModel>() with factory { tagId: String ->
-            ShareSensorViewModel(tagId, instance(), instance(), instance(), instance())
+            ShareSensorViewModel(tagId, instance(), instance(), instance(), instance(), instance(), instance())
         }
 
         bind<ClaimSensorViewModel>() with factory { sensorId: String ->
@@ -52,7 +52,7 @@ object NetworkInjectionModule {
         bind<NetworkResponseLocalizer>() with provider { NetworkResponseLocalizer(instance()) }
 
         bind<MyAccountViewModel>() with provider {
-            MyAccountViewModel(instance(), instance(), instance(), instance())
+            MyAccountViewModel(instance(), instance(), instance(), instance(), instance())
         }
 
         bind<SignInViewModel>() with provider {

@@ -78,7 +78,8 @@ class AlarmRepository {
         type: Int,
         enabled: Boolean,
         description: String,
-        mutedTill: Date?
+        mutedTill: Date?,
+        timestamp: Long?
     ): Alarm {
         var alarm = getForSensor(sensorId).firstOrNull { it.type == type }
         if (alarm == null) {
@@ -87,8 +88,8 @@ class AlarmRepository {
 
         val extraRange = getByDbCode(type).extraRange
         val possibleRange = getByDbCode(type).possibleRange
-        val extended = (!possibleRange.contains(min.toInt()) && extraRange.contains(min.toInt())) ||
-                (!possibleRange.contains(max.toInt()) && extraRange.contains(max.toInt()))
+        val extended = (!possibleRange.contains(min) && extraRange.contains(min)) ||
+                (!possibleRange.contains(max) && extraRange.contains(max))
 
         val min = if (type == Alarm.MOVEMENT) 0.0 else min
         val max = if (type == Alarm.MOVEMENT) 0.0 else max
@@ -102,6 +103,7 @@ class AlarmRepository {
         alarm.mutedTill = mutedTill
         alarm.latestTriggered = if (enabled) alarm.latestTriggered else null
         alarm.extended = alarm.extended || extended
+        alarm.lastUpdated = timestamp ?: (Date().time / 1000)
         alarm.save()
         return alarm
     }

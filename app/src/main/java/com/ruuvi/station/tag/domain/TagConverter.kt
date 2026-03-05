@@ -54,6 +54,20 @@ class TagConverter(
                         temperature
                     )
                 },
+                absoluteHumidity = humidity?.let {
+                    unitsConverter.getHumidityEnvironmentValue(
+                        humidity = it,
+                        temperature = temperature,
+                        humidityUnit = HumidityUnit.Absolute
+                    )
+                },
+                dew_point = humidity?.let {
+                unitsConverter.getHumidityEnvironmentValue(
+                    humidity = it,
+                    temperature = temperature,
+                    humidityUnit = HumidityUnit.DewPoint
+                )
+                },
                 movement = entity.movementCounter?.let {
                     movementConverter.getMovementEnvironmentValue(
                         it
@@ -262,6 +276,20 @@ class TagConverter(
                     },
                     humidity = humidity?.let {
                         unitsConverter.getHumidityEnvironmentValue(it, temperature)
+                    },
+                    absoluteHumidity = humidity?.let {
+                        unitsConverter.getHumidityEnvironmentValue(
+                            humidity = it,
+                            temperature = temperature,
+                            humidityUnit = HumidityUnit.Absolute
+                        )
+                    },
+                    dew_point = humidity?.let {
+                        unitsConverter.getHumidityEnvironmentValue(
+                            humidity = it,
+                            temperature = temperature,
+                            humidityUnit = HumidityUnit.DewPoint
+                        )
                     },
                     movement = entity.movementCounter?.let {
                         movementConverter.getMovementEnvironmentValue(it)

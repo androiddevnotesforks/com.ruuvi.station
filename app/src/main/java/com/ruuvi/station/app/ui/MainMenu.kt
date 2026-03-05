@@ -22,7 +22,6 @@ import com.ruuvi.station.app.ui.theme.RuuviStationTheme
 import com.ruuvi.station.network.ui.MyAccountActivity
 import com.ruuvi.station.network.ui.SignInActivity
 import com.ruuvi.station.settings.ui.SettingsActivity
-import com.ruuvi.station.util.extensions.openUrl
 import com.ruuvi.station.util.extensions.sendFeedback
 import kotlinx.coroutines.launch
 
@@ -89,14 +88,6 @@ fun DashboardMainMenu(
                 R.string.menu_send_feedback,
                 stringResource(id = R.string.menu_send_feedback)
             ),
-            MenuItem(
-                R.string.menu_what_to_measure,
-                stringResource(id = R.string.menu_what_to_measure)
-            ),
-            MenuItem(
-                R.string.menu_buy_sensors,
-                stringResource(id = R.string.menu_buy_sensors)
-            ),
             if (signedIn) {
                 MenuItem(
                     R.string.my_ruuvi_account,
@@ -115,8 +106,6 @@ fun DashboardMainMenu(
                 R.string.menu_app_settings -> SettingsActivity.start(context)
                 R.string.menu_about_help -> AboutActivity.start(context)
                 R.string.menu_send_feedback -> context.sendFeedback()
-                R.string.menu_what_to_measure -> context.openUrl(context.getString(R.string.what_to_measure_link))
-                R.string.menu_buy_sensors -> context.openUrl(context.getString(R.string.buy_sensors_menu_link))
                 R.string.my_ruuvi_account -> MyAccountActivity.start(context)
                 R.string.sign_in -> SignInActivity.start(context)
             }

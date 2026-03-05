@@ -67,6 +67,7 @@ class MyAccountActivity : AppCompatActivity(), KodeinAware {
             }
             val subscription by viewModel.subscription.collectAsState()
             val tokens by viewModel.tokens.collectAsState()
+            val marketingPermission by viewModel.marketingPermission.collectAsState()
 
             LaunchedEffect(key1 = true) {
                 viewModel.events.collect() { event ->
@@ -85,6 +86,8 @@ class MyAccountActivity : AppCompatActivity(), KodeinAware {
                 StatusBarFill {
                     MyAccountBody(
                         user = username,
+                        marketingPermission = marketingPermission,
+                        setMarketingPermission = viewModel::setMarketingPermission,
                         signOut = viewModel::signOut,
                         deleteAccount = viewModel::removeAccount,
                         subscription = subscription,
@@ -125,6 +128,8 @@ class MyAccountActivity : AppCompatActivity(), KodeinAware {
 @Composable
 fun MyAccountBody(
     user: String,
+    marketingPermission: Boolean,
+    setMarketingPermission: (Boolean) -> Unit,
     signOut: () -> Unit,
     deleteAccount: () -> Unit,
     subscription: Subscription?,
@@ -145,7 +150,15 @@ fun MyAccountBody(
                 SubtitleWithPadding(text = stringResource(id = R.string.signed_in_user))
                 ParagraphWithPadding(text = user)
 
-                Spacer(modifier = Modifier.height(RuuviStationTheme.dimensions.big))
+                // ISSUE 1258 Temporary disabled
+//                SwitchIndicatorRuuvi(
+//                    text = stringResource(id = R.string.communication_channels),
+//                    checked = marketingPermission,
+//                    onCheckedChange = setMarketingPermission
+//                )
+//                Paragraph(text = stringResource(id = R.string.communication_channels_description))
+
+                Spacer(modifier = Modifier.height(RuuviStationTheme.dimensions.extraBig))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
